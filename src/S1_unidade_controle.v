@@ -8,6 +8,7 @@ module S1_unidade_controle (
     input      jogada,   // sinal que indica que a jogada foi efetivada (detectada a borda)
     input      timeout,  // sinal de tempo esgotado
     input      muda_leds,// sinal que indica que os LEDs já foram atualizados
+    input treinamento,
     output reg zeraT,     // zera temporizador T
     output reg contaT,    // conta temporizador T
     output reg zeraE,     // zera o contador de endereços (usado na leitura da memória)
@@ -83,7 +84,7 @@ module S1_unidade_controle (
             comparaJ      : Eprox = enderecoIgualLimite ? preparaE : (muda_leds ? incrementaE : comparaJ);
             preparaE      : Eprox = espera_jogada;
             incrementaE   : Eprox = mostra_leds;
-            espera_jogada : Eprox = timeout ? fim_timeout : (jogada ? registra : espera_jogada);
+            espera_jogada : Eprox = treinamento ? espera_jogada : (timeout ? fim_timeout : (jogada ? registra : espera_jogada));
             registra      : Eprox = comparacao;
             comparacao    : Eprox = (!botoesIgualMemoria) ? errou : (enderecoIgualLimite ? fim_rodada : proximo);
             proximo       : Eprox = espera_jogada;

@@ -5,6 +5,7 @@ module circuito_S1 (
     input         memoria,
     input         nivel,
     input  [6:0]  botoes,
+    input treinamento,
     output        pronto,
     output        acertou,
     output        errou,
@@ -122,7 +123,8 @@ module circuito_S1 (
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
         .regErro(s_regErro),
-        .regPontos(s_regPontos)
+        .regPontos(s_regPontos),
+        .treinamento(treinamento)
     );
 
     // Instâncias de módulos de depuração e exibição
