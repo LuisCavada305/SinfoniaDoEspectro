@@ -46,7 +46,7 @@ module circuito_S1 (
     wire s_contaT2;
     wire s_muda_leds;
     wire s_mostraJ, s_mostraB, s_mostraPontos, s_zeraPontos;
-    wire s_contaErro, s_zeraErro, s_regErro, s_regPontos;
+    wire s_zeraMemErro, s_contaErro, s_zeraErro, s_regErro, s_regPontos;
 
     // Instância do módulo de fluxo de dados
     S1_fluxo_dados FD(
@@ -81,6 +81,7 @@ module circuito_S1 (
         .muda_leds(s_muda_leds),
         .zeraPontos(s_zeraPontos),
         .pontos(s_pontos),
+        .zeraMemErro (s_zeraMemErro),
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
         .regErro(s_regErro),
@@ -117,6 +118,7 @@ module circuito_S1 (
         .muda_leds(s_muda_leds),
         .mostraPontos(s_mostraPontos),
         .zeraPontos(s_zeraPontos),
+        .zeraMemErro (s_zeraMemErro),
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
         .regErro(s_regErro),
