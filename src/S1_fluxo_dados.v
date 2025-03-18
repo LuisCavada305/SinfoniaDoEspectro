@@ -95,7 +95,7 @@ module S1_fluxo_dados (
       .Q    ( s_contagem ),
       .rco  ( fimE )
     );
-
+    
     // Comparador para verificar se o endereço é igual ao limite
     comparador_85 CompLmt (
       .A   ( s_limite ),

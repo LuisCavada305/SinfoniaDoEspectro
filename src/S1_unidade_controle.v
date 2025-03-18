@@ -110,7 +110,7 @@ module S1_unidade_controle (
         // Zera o registrador de jogada
         zeraR     = (Eatual == preparacao) ? 1'b1 : 1'b0;
         // Zera o contador de limite – inclui o estado prep_fim para reinicializar a contagem para iteração na MemErro
-        zeraL     = (Eatual == preparacao) ? 1'b1 : 1'b0;
+        zeraL     = (Eatual == preparacao || Eatual == prep_fim) ? 1'b1 : 1'b0;
         // Habilita o registrador de jogada
         registraR = (Eatual == registra) ? 1'b1 : 1'b0;
         // Incrementa o contador de endereços
@@ -143,7 +143,7 @@ module S1_unidade_controle (
                         ? 1'b1 : 1'b0;
         zeraMemErro = (Eatual == preparacao) ? 1'b1 : 1'b0;
         // Zera o contador de erros (usado para registrar os erros da rodada)
-        zeraErro  = (Eatual == prox_rodada) ? 1'b1 : 1'b0;
+        zeraErro  = (Eatual == preparacao || Eatual == prox_rodada) ? 1'b1 : 1'b0;
         // Incrementa o contador de erros
         contaErro = (Eatual == errou) ? 1'b1 : 1'b0;
         // Registra os erros na memória (MemErro)
