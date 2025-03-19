@@ -5,10 +5,11 @@ module circuito_S1 (
     input         memoria,
     input         nivel,
     input  [6:0]  botoes,
-    input treinamento,
+    input         treinamento,
     output        pronto,
     output        acertou,
     output        errou,
+    output arduino_out,
     // Depuração
     output        db_jogar,
     output        db_botoesIgualMemoria,
@@ -48,6 +49,7 @@ module circuito_S1 (
     wire s_muda_leds;
     wire s_mostraJ, s_mostraB, s_mostraPontos, s_zeraPontos;
     wire s_zeraMemErro, s_contaErro, s_zeraErro, s_regErro, s_regPontos;
+    wire s_sel_memoria_arduino, s_activateArdunino;
 
     // Instância do módulo de fluxo de dados
     S1_fluxo_dados FD(
@@ -86,7 +88,9 @@ module circuito_S1 (
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
         .regErro(s_regErro),
-        .regPontos(s_regPontos)
+        .regPontos(s_regPontos),
+        .sel_memoria_arduino (s_sel_memoria_arduino),
+        .activateArduino (s_activateArdunino)
     );
 
     // Instância do módulo de unidade de controle
@@ -124,7 +128,9 @@ module circuito_S1 (
         .zeraErro(s_zeraErro),
         .regErro(s_regErro),
         .regPontos(s_regPontos),
-        .treinamento(treinamento)
+        .treinamento(treinamento),
+        .sel_memoria_arduino(s_sel_memoria_arduino),
+        .activateArduino (s_activateArdunino)
     );
 
     // Instâncias de módulos de depuração e exibição

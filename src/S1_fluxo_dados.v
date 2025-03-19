@@ -23,6 +23,8 @@ module S1_fluxo_dados (
     input regErro,
     input zeraPontos,
     input regPontos,
+    input sel_memoria_arduino,
+    input activateArduino,
     // Sinais de Condição
     output enderecoIgualLimite, //
     output botoesIgualMemoria,//
@@ -30,15 +32,17 @@ module S1_fluxo_dados (
     output fimE, //
     output jogadafeita,//
     output timeout,
-	 output muda_leds,
+	output muda_leds,
+    // Sinal de Saída
+    output arduino_out,
     // Depuração
     output db_temjogada,//
     output [3:0] db_limite, //
     output [3:0] db_contagem,//
     output [6:0] db_memoria,//
     output [6:0] db_jogada,//
-	 output [6:0] leds,
-	 output [7:0] pontos
+    output [6:0] leds,
+    output [7:0] pontos
 );
     wire [6:0] s_jogada;  // sinal interno para interligacao dos componentes
     wire [3:0] s_contagem;
@@ -248,6 +252,18 @@ module S1_fluxo_dados (
     assign s_resultado = calc_new_score;
 	 
 
+    // Conexão com o Arduino
+    mux2x1_7 Arduino_sound (
+        .D0 (botoes),
+        .D1 (s_memoria),
+        .SEL(sel_memoria_arduino),
+        .OUT (s_arduino_out)
+    );
+    arduino_connection Arduino_Play(
+        .entrada (s_arduino_out),
+        .enable (activateArduino),
+        .saida  (arduino_out)
+    );
     // saidas de depuracao
     assign db_limite = s_limite;
     assign db_temjogada = s_sinal;

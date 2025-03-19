@@ -7,8 +7,8 @@ module S1_unidade_controle (
     input      enderecoIgualLimite, // indica se o endereço (contagem) atingiu o limite esperado
     input      jogada,   // sinal que indica que a jogada foi efetivada (detectada a borda)
     input      timeout,  // sinal de tempo esgotado
-    input      muda_leds,// sinal que indica que os LEDs já foram atualizados
-    input treinamento,
+    input      muda_nota,// sinal que indica que os LEDs já foram atualizados
+    input      treinamento,
     output reg zeraT,     // zera temporizador T
     output reg contaT,    // conta temporizador T
     output reg zeraE,     // zera o contador de endereços (usado na leitura da memória)
@@ -32,7 +32,9 @@ module S1_unidade_controle (
     output reg zeraErro,  // zera o contador de erros
     output reg regErro,   // registra (salva) o valor de erro na memória
     output reg zeraPontos,// clear no registrador de pontos (inicia com 100)
-    output reg regPontos  // atualiza o registrador de pontos com o novo valor parcial
+    output reg regPontos,  // atualiza o registrador de pontos com o novo valor parcial
+    output reg sel_memoria_arduino,
+    output reg activateArduino
 );
 
     //=============================================================
@@ -44,7 +46,7 @@ module S1_unidade_controle (
     parameter registra       = 5'b00100; // 4
     parameter comparacao     = 5'b00101; // 5
     parameter proximo        = 5'b00110; // 6
-    parameter mostra_leds    = 5'b00111; // 7
+    parameter toca_nota    = 5'b00111; // 7
     parameter comparaJ       = 5'b01000; // 8
     parameter incrementaE    = 5'b01001; // 9
     parameter preparaE       = 5'b01100; // C
@@ -80,18 +82,18 @@ module S1_unidade_controle (
     always @* begin
         case (Eatual)
             inicial       : Eprox = jogar ? preparacao : inicial;
-            preparacao    : Eprox = treinamento ? modo_treino : mostra_leds;
-            mostra_leds   : Eprox = muda_leds ? comparaJ : mostra_leds;
-            comparaJ      : Eprox = enderecoIgualLimite ? preparaE : (muda_leds ? incrementaE : comparaJ);
+            preparacao    : Eprox = treinamento ? modo_treino : toca_nota;
+            toca_nota     : Eprox = muda_nota ? comparaJ : toca_nota;
+            comparaJ      : Eprox = enderecoIgualLimite ? preparaE : (muda_nota ? incrementaE : comparaJ);
             preparaE      : Eprox = espera_jogada;
-            incrementaE   : Eprox = mostra_leds;
+            incrementaE   : Eprox = toca_nota;
             espera_jogada : Eprox = timeout ? fim_timeout : (jogada ? registra : espera_jogada);
             registra      : Eprox = comparacao;
             comparacao    : Eprox = (!botoesIgualMemoria) ? errou : (enderecoIgualLimite ? fim_rodada : proximo);
             proximo       : Eprox = espera_jogada;
-            fim_rodada    : Eprox = muda_leds ? (fimL ? prep_fim : prox_rodada) : fim_rodada;
-            prox_rodada   : Eprox = mostra_leds;
-            errou         : Eprox = mostra_leds;
+            fim_rodada    : Eprox = muda_nota ? (fimL ? prep_fim : prox_rodada) : fim_rodada;
+            prox_rodada   : Eprox = toca_nota;
+            errou         : Eprox = toca_nota;
             fim_acertou   : Eprox = jogar ? preparacao : fim_acertou;
             fim_timeout   : Eprox = jogar ? preparacao : fim_timeout;
             // Fase de cálculo dos pontos
@@ -135,9 +137,9 @@ module S1_unidade_controle (
         // Zera temporizador T2; inclui também o prep_fim para preparar a fase de pontos
         zeraT2    = (Eatual == preparacao || Eatual == prox_rodada || Eatual == comparacao || Eatual == errou || Eatual == prep_fim) ? 1'b1 : 1'b0;
         // Conta temporizador T2
-        contaT2   = (Eatual == mostra_leds || Eatual == incrementaE || Eatual == comparaJ || Eatual == fim_rodada) ? 1'b1 : 1'b0;
+        contaT2   = (Eatual == toca_nota || Eatual == incrementaE || Eatual == comparaJ || Eatual == fim_rodada) ? 1'b1 : 1'b0;
         // Exibe os LEDs da sequência
-        mostraJ   = (Eatual == mostra_leds) ? 1'b1 : 1'b0;
+        mostraJ   = (Eatual == toca_nota) ? 1'b1 : 1'b0;
         // Exibe o conteúdo dos botões (quando apropriado)
         mostraB   = (Eatual == espera_jogada || Eatual == registra || Eatual == comparacao || Eatual == fim_rodada || Eatual == modo_treino) ? 1'b1 : 1'b0;
         // Durante a fase de pontuação, ativa a exibição dos pontos
@@ -155,6 +157,10 @@ module S1_unidade_controle (
         zeraPontos = (Eatual == prep_fim) ? 1'b1 : 1'b0;
         // Atualiza o registrador de pontos (RegPontos) somente em salva_pontos
         regPontos  = (Eatual == salva_pontos) ? 1'b1 : 1'b0;
+        // Seleciona a saída que vai para o arduino
+        sel_memoria_arduino = (Eatual == toca_nota) ? 1'b1 : 1'b0;
+        // Ativa a saída para o Arduino
+        activateArduino = (Eatual == inicial || Eatual == preparacao) ? 1'b0 : 1'b1;
 
         //=============================================================
         // Saída de depuração: db_estado
@@ -162,7 +168,7 @@ module S1_unidade_controle (
         case (Eatual)
             inicial      : db_estado = 5'b00000; // 0
             preparacao   : db_estado = 5'b00001; // 1
-            mostra_leds  : db_estado = 5'b00111; // 7
+            toca_nota    : db_estado = 5'b00111; // 7
             comparaJ     : db_estado = 5'b01000; // 8
             incrementaE  : db_estado = 5'b01001; // 9
             espera_jogada: db_estado = 5'b00011; // 3
