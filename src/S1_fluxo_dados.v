@@ -32,7 +32,7 @@ module S1_fluxo_dados (
     output fimE, //
     output jogadafeita,//
     output timeout,
-	output muda_leds,
+	output muda_nota,
     // Sinal de Saída
     output arduino_out,
     // Depuração
@@ -178,7 +178,7 @@ module S1_fluxo_dados (
         .zera_s (zeraT2),
         .conta (contaT2),
         .Q (),
-        .fim (muda_leds),
+        .fim (muda_nota),
         .meio () 
 
     );

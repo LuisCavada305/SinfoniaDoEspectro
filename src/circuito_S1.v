@@ -46,7 +46,7 @@ module circuito_S1 (
     wire s_timeout;
     wire s_zeraT2;
     wire s_contaT2;
-    wire s_muda_leds;
+    wire s_muda_nota;
     wire s_mostraJ, s_mostraB, s_mostraPontos, s_zeraPontos;
     wire s_zeraMemErro, s_contaErro, s_zeraErro, s_regErro, s_regPontos;
     wire s_sel_memoria_arduino, s_activateArdunino;
@@ -81,7 +81,7 @@ module circuito_S1 (
         .contaT2(s_contaT2),
         .mostraJ(s_mostraJ),
         .mostraB(s_mostraB),
-        .muda_leds(s_muda_leds),
+        .muda_nota(s_muda_nota),
         .zeraPontos(s_zeraPontos),
         .pontos(s_pontos),
         .zeraMemErro (s_zeraMemErro),
@@ -120,7 +120,7 @@ module circuito_S1 (
         .contaT2(s_contaT2),
         .mostraJ(s_mostraJ),
         .mostraB(s_mostraB),
-        .muda_leds(s_muda_leds),
+        .muda_nota(s_muda_nota),
         .mostraPontos(s_mostraPontos),
         .zeraPontos(s_zeraPontos),
         .zeraMemErro (s_zeraMemErro),
