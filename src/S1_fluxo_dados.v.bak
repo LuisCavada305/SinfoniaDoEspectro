@@ -32,9 +32,9 @@ module S1_fluxo_dados (
     output fimE, //
     output jogadafeita,//
     output timeout,
-	 output muda_nota,
+	output muda_leds,
     // Sinal de Saída
-    output [2:0] arduino_out,
+    output arduino_out,
     // Depuração
     output db_temjogada,//
     output [3:0] db_limite, //
@@ -58,7 +58,7 @@ module S1_fluxo_dados (
     wire [3:0] m_erros;
     assign s_sinal = botoes[0] | botoes[1] | botoes[2] | botoes[3] | botoes[4] | botoes[5] | botoes[6];
     wire [7:0] s_pontos, s_resultado;
-    wire [6:0] s_arduino_out;
+    
 
      // ======================================================
     // Bloco de Contagem e Comparação da Sequência
@@ -178,7 +178,7 @@ module S1_fluxo_dados (
         .zera_s (zeraT2),
         .conta (contaT2),
         .Q (),
-        .fim (muda_nota),
+        .fim (muda_leds),
         .meio () 
 
     );
@@ -257,12 +257,12 @@ module S1_fluxo_dados (
         .D0 (botoes),
         .D1 (s_memoria),
         .SEL(sel_memoria_arduino),
-		  .OUT (s_arduino_out)
+        .OUT (s_arduino_out)
     );
     arduino_connection Arduino_Play(
         .entrada (s_arduino_out),
         .enable (activateArduino),
-		  .saida  (arduino_out)
+        .saida  (arduino_out)
     );
     // saidas de depuracao
     assign db_limite = s_limite;
@@ -270,7 +270,7 @@ module S1_fluxo_dados (
     assign db_contagem = s_contagem;
     assign db_memoria = s_memoria;
     assign db_jogada = s_jogada;
-	 assign pontos = s_pontos;
+	assign pontos = s_pontos;
  endmodule
  
 module registrador_7 (

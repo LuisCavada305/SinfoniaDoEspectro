@@ -154,7 +154,7 @@ module S1_unidade_controle (
         // Registra os erros na memória (MemErro)
         regErro   = (Eatual == fim_rodada) ? 1'b1 : 1'b0;
         // No estado prep_fim, realiza clear no registrador de pontos (inicializa com 100)
-        zeraPontos = (Eatual == inicial ||Eatual == prep_fim) ? 1'b1 : 1'b0;
+        zeraPontos = (Eatual == prep_fim) ? 1'b1 : 1'b0;
         // Atualiza o registrador de pontos (RegPontos) somente em salva_pontos
         regPontos  = (Eatual == salva_pontos) ? 1'b1 : 1'b0;
         // Seleciona a saída que vai para o arduino
