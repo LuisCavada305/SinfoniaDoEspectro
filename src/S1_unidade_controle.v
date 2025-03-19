@@ -99,7 +99,7 @@ module S1_unidade_controle (
             calc_pontos   : Eprox = salva_pontos;      // Espera um ciclo para estabilizar os valores
             salva_pontos  : Eprox = fimL ? fim_acertou : prox_pos;  // Se ContLmt atingiu fim, vai para fim_acertou; caso contrário, avança para próxima posição
             prox_pos      : Eprox = calc_pontos;       // Incrementa ContLmt (e outras funções) para iterar MemErro e retorna a fase de cálculo
-            modo_treino   : Eprox = treinamento ? modo_treino : preparacao;
+            modo_treino   : Eprox = treinamento ? modo_treino : inicial;
             default       : Eprox = inicial;
         endcase
     end
