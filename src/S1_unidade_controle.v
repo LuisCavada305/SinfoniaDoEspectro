@@ -57,6 +57,7 @@ module S1_unidade_controle (
     parameter salva_pontos   = 5'b10001; // 17
     parameter prox_pos       = 5'b10010; // 18
     parameter prep_fim       = 5'b10011; // 19
+    parameter modo_treino    = 5'b10100;
 
     //=============================================================
     // Variáveis de estado
@@ -79,12 +80,12 @@ module S1_unidade_controle (
     always @* begin
         case (Eatual)
             inicial       : Eprox = jogar ? preparacao : inicial;
-            preparacao    : Eprox = mostra_leds;
+            preparacao    : Eprox = treinamento ? modo_treino : mostra_leds;
             mostra_leds   : Eprox = muda_leds ? comparaJ : mostra_leds;
             comparaJ      : Eprox = enderecoIgualLimite ? preparaE : (muda_leds ? incrementaE : comparaJ);
             preparaE      : Eprox = espera_jogada;
             incrementaE   : Eprox = mostra_leds;
-            espera_jogada : Eprox = treinamento ? espera_jogada : (timeout ? fim_timeout : (jogada ? registra : espera_jogada));
+            espera_jogada : Eprox = timeout ? fim_timeout : (jogada ? registra : espera_jogada);
             registra      : Eprox = comparacao;
             comparacao    : Eprox = (!botoesIgualMemoria) ? errou : (enderecoIgualLimite ? fim_rodada : proximo);
             proximo       : Eprox = espera_jogada;
@@ -98,6 +99,7 @@ module S1_unidade_controle (
             calc_pontos   : Eprox = salva_pontos;      // Espera um ciclo para estabilizar os valores
             salva_pontos  : Eprox = fimL ? fim_acertou : prox_pos;  // Se ContLmt atingiu fim, vai para fim_acertou; caso contrário, avança para próxima posição
             prox_pos      : Eprox = calc_pontos;       // Incrementa ContLmt (e outras funções) para iterar MemErro e retorna a fase de cálculo
+            modo_treino   : Eprox = treinamento ? modo_treino : preparacao;
             default       : Eprox = inicial;
         endcase
     end
@@ -137,7 +139,7 @@ module S1_unidade_controle (
         // Exibe os LEDs da sequência
         mostraJ   = (Eatual == mostra_leds) ? 1'b1 : 1'b0;
         // Exibe o conteúdo dos botões (quando apropriado)
-        mostraB   = (Eatual == espera_jogada || Eatual == registra || Eatual == comparacao || Eatual == fim_rodada) ? 1'b1 : 1'b0;
+        mostraB   = (Eatual == espera_jogada || Eatual == registra || Eatual == comparacao || Eatual == fim_rodada || Eatual == modo_treino) ? 1'b1 : 1'b0;
         // Durante a fase de pontuação, ativa a exibição dos pontos
         mostraPontos = (Eatual == errou || Eatual == fim_acertou || Eatual == fim_timeout ||
                         Eatual == calc_pontos || Eatual == salva_pontos || Eatual == prox_pos || Eatual == prep_fim)
@@ -177,7 +179,9 @@ module S1_unidade_controle (
             salva_pontos : db_estado = 5'b10001; // 17
             prox_pos     : db_estado = 5'b10010; // 18
             prep_fim     : db_estado = 5'b10011; // 19
+            modo_treino  : db_estado = 5'b10100; // 20
             default      : db_estado = 5'b01111; // F
+
         endcase
     end
 
