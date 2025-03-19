@@ -1,0 +1,1553 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>2</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>Clock</elementName>
+      <elementAttributes>
+        <entry>
+          <string>runRealTime</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
+          <string>Frequency</string>
+          <int>1000</int>
+        </entry>
+      </elementAttributes>
+      <pos x="180" y="300"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes/>
+      <pos x="1160" y="200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes/>
+      <pos x="1120" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="300" y="340"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="40" y="300"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes/>
+      <pos x="80" y="380"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes/>
+      <pos x="160" y="360"/>
+    </visualElement>
+    <visualElement>
+      <elementName>External</elementName>
+      <elementAttributes>
+        <entry>
+          <string>applicationType</string>
+          <appType>IVERILOG</appType>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>circuito_S1</string>
+        </entry>
+        <entry>
+          <string>externalInputs</string>
+          <string>clock,reset,jogar,memoria,nivel,botoes:7,treinamento</string>
+        </entry>
+        <entry>
+          <string>Width</string>
+          <int>12</int>
+        </entry>
+        <entry>
+          <string>Code</string>
+          <string>module circuito_S1 (
+    input         clock,
+    input         reset,
+    input         jogar,
+    input         memoria,
+    input         nivel,
+    input  [6:0]  botoes,
+    input treinamento,
+    output        pronto,
+    output        acertou,
+    output        errou,
+    // Depuração
+    output        db_jogar,
+    output        db_botoesIgualMemoria,
+    output        db_tem_jogada,
+    output [6:0]  db_contagem,
+    output [6:0]  db_memoria,
+    output [6:0]  db_limite,
+    output [6:0]  db_jogadafeita,
+    output [6:0]  db_estado,
+    output        db_timeout,
+    output        db_clock,
+    output [6:0]  leds,
+    // Saída dos pontos – agora os pontos são exibidos em 3 displays de 7 segmentos
+    output [6:0]  disp_hund, // display das centenas
+    output [6:0]  disp_tens, // display das dezenas
+    output [6:0]  disp_ones  // display das unidades
+);
+
+    // Sinais internos
+    wire s_zeraR, s_registraR, s_contaE, s_zeraE, s_contaL, s_zeraL, s_fimL;
+    wire [3:0] s_contagem;  // Contador de endereços (4 bits)
+    wire [6:0] s_jogada;
+    wire [3:0] s_limite;    // Contador de limite (4 bits)
+    wire [6:0] s_memoria;
+    wire [4:0] s_estado;
+    // Agora s_pontos é de 8 bits para representar a pontuação de 0 a 255 (inicialmente 100)
+    wire [7:0] s_pontos;
+    wire s_enderecoIgualLimite;
+    wire s_botoesIgualMemoria;
+    wire s_jogadafeita;
+    wire s_jogar;
+    wire s_zeraT;
+    wire s_contaT;
+    wire s_timeout;
+    wire s_zeraT2;
+    wire s_contaT2;
+    wire s_muda_leds;
+    wire s_mostraJ, s_mostraB, s_mostraPontos, s_zeraPontos;
+    wire s_zeraMemErro, s_contaErro, s_zeraErro, s_regErro, s_regPontos;
+
+    // Instância do módulo de fluxo de dados
+    S1_fluxo_dados FD(
+        .clock (clock),
+        .botoes (botoes),
+        .zeraR (s_zeraR),
+        .registraR (s_registraR),
+        .contaE (s_contaE),
+        .zeraE (s_zeraE),
+        .contaL (s_contaL),
+        .zeraL (s_zeraL),
+        .enderecoIgualLimite (s_enderecoIgualMemoria),
+        .botoesIgualMemoria (s_botoesIgualMemoria),
+        .fimL (s_fimL),
+        .fimE ( ),
+        .memoria (memoria),
+        .nivel (nivel),
+        .zeraT(s_zeraT),
+        .contaT(s_contaT),
+        .timeout(s_timeout),
+        .jogadafeita (s_jogadafeita),
+        .db_limite (s_limite),
+        .db_temjogada (db_tem_jogada),
+        .db_contagem (s_contagem),
+        .db_jogada (s_jogada),
+        .db_memoria (s_memoria),
+        .leds(leds),
+        .zeraT2(s_zeraT2),
+        .contaT2(s_contaT2),
+        .mostraJ(s_mostraJ),
+        .mostraB(s_mostraB),
+        .muda_leds(s_muda_leds),
+        .zeraPontos(s_zeraPontos),
+        .pontos(s_pontos),
+        .zeraMemErro (s_zeraMemErro),
+        .contaErro(s_contaErro),
+        .zeraErro(s_zeraErro),
+        .regErro(s_regErro),
+        .regPontos(s_regPontos)
+    );
+
+    // Instância do módulo de unidade de controle
+    S1_unidade_controle UC(
+        .clock (clock),
+        .reset (reset),
+        .jogar (s_jogar),
+        .fimL (s_fimL),
+        .enderecoIgualLimite (s_enderecoIgualMemoria),
+        .botoesIgualMemoria (s_botoesIgualMemoria),
+        .jogada (s_jogadafeita),
+        .zeraE (s_zeraE),
+        .contaE (s_contaE),
+        .zeraL (s_zeraL),
+        .contaL (s_contaL),
+        .zeraR (s_zeraR),
+        .registraR (s_registraR),
+        .zeraT(s_zeraT),
+        .contaT(s_contaT),
+        .timeout(s_timeout),
+        .pronto (pronto),
+        .db_estado (s_estado),
+        .db_timeout(db_timeout),
+        .acertou (acertou),
+        .serrou (errou),
+        .zeraT2(s_zeraT2),
+        .contaT2(s_contaT2),
+        .mostraJ(s_mostraJ),
+        .mostraB(s_mostraB),
+        .muda_leds(s_muda_leds),
+        .mostraPontos(s_mostraPontos),
+        .zeraPontos(s_zeraPontos),
+        .zeraMemErro (s_zeraMemErro),
+        .contaErro(s_contaErro),
+        .zeraErro(s_zeraErro),
+        .regErro(s_regErro),
+        .regPontos(s_regPontos),
+        .treinamento(treinamento)
+    );
+
+    // Instâncias de módulos de depuração e exibição
+    hexa7seg HEX0(
+        .hexa (s_contagem),
+        .display (db_contagem)
+    );
+
+    estado7seg HEX5(
+        .estado (s_estado),
+        .display (db_estado)
+    );
+
+    hexa7seg HEX3(
+        .hexa(s_limite),
+        .display (db_limite)
+    );
+
+    // O módulo edge_detector gera o sinal s_jogar a partir do sinal jogar
+    edge_detector detector_borda(
+        .clock(clock),
+        .reset(reset),
+        .sinal(jogar),
+        .pulso(s_jogar)
+    );
+    
+    // Sinais de depuração adicionais
+    assign db_jogar = jogar;
+    assign db_botoesIgualMemoria = s_botoesIgualMemoria;
+    assign db_clock = clock;
+
+    // Instancia o novo módulo display_pontos para exibir os pontos em 3 displays de 7 segmentos.
+    display_pontos DP (
+        .pontos(s_pontos),
+        .enable(s_mostraPontos),
+        .disp_hundreds(disp_hund),
+        .disp_tens(disp_tens),
+        .disp_ones(disp_ones)
+    );
+    
+endmodule
+
+/*---------------Laboratorio Digital-------------------------------------
+ * Arquivo   : contador_m.v
+ * Projeto   : Experiencia 4 - Desenvolvimento de Projeto de 
+ *                             Circuitos Digitais em FPGA
+ *-----------------------------------------------------------------------
+ * Descricao : contador binario, modulo m, com parametros 
+ *             M (modulo do contador) e N (numero de bits),
+ *             sinais para clear assincrono (zera_as) e sincrono (zera_s)
+ *             e saidas de fim e meio de contagem
+ *             
+ *-----------------------------------------------------------------------
+ * Revisoes  :
+ *     Data        Versao  Autor             Descricao
+ *     30/01/2024  1.0     Edson Midorikawa  criacao
+ *     16/01/2025  1.1     Edson Midorikawa  revisao
+ *-----------------------------------------------------------------------
+ */
+
+module contador_m #(parameter M=100, N=7)
+  (
+   input  wire          clock,
+   input  wire          zera_as,
+   input  wire          zera_s,
+   input  wire          conta,
+   output reg  [N-1:0]  Q,
+   output reg           fim,
+   output reg           meio
+  );
+
+  always @(posedge clock or posedge zera_as) begin
+    if (zera_as) begin
+      Q &lt;= 0;
+    end else if (clock) begin
+      if (zera_s) begin
+        Q &lt;= 0;
+      end else if (conta) begin
+        if (Q == M-1) begin
+          Q &lt;= 0;
+        end else begin
+          Q &lt;= Q + 1&apos;b1;
+        end
+      end
+    end
+  end
+
+  // Saidas
+  always @ (Q)
+      if (Q == M-1)   fim = 1;
+      else            fim = 0;
+
+  always @ (Q)
+      if (Q == M/2-1) meio = 1;
+      else            meio = 0;
+
+endmodule
+module display_pontos(
+    input  [7:0] pontos,
+    input        enable,
+    output [6:0] disp_hundreds,
+    output [6:0] disp_tens,
+    output [6:0] disp_ones
+);
+    wire [3:0] hundreds;
+    wire [3:0] tens;
+    wire [3:0] ones;
+    
+    // Conversão de 8 bits para 3 dígitos BCD
+    bin2bcd conv (
+        .binary(pontos),
+        .hundreds(hundreds),
+        .tens(tens),
+        .ones(ones)
+    );
+    
+    // Se enable estiver ativo, passa os dígitos; caso contrário, envia um código (por exemplo, 10) para indicar blank.
+    wire [3:0] hundreds_in = (enable) ? hundreds : 4&apos;d10;
+    wire [3:0] tens_in     = (enable) ? tens     : 4&apos;d10;
+    wire [3:0] ones_in     = (enable) ? ones     : 4&apos;d10;
+    
+    // Instanciação de 3 módulos hexa7seg para cada dígito
+    hexa7seg disp_hund_inst(
+        .hexa(hundreds_in),
+        .display(disp_hundreds)
+    );
+    
+    hexa7seg disp_tens_inst(
+        .hexa(tens_in),
+        .display(disp_tens)
+    );
+    
+    hexa7seg disp_ones_inst(
+        .hexa(ones_in),
+        .display(disp_ones)
+    );
+endmodule
+
+
+module bin2bcd(
+    input  [7:0] binary,
+    output [3:0] hundreds,
+    output [3:0] tens,
+    output [3:0] ones
+);
+    // Divisão para extrair centenas, dezenas e unidades
+    assign hundreds = binary / 100;
+    assign tens     = (binary % 100) / 10;
+    assign ones     = binary % 10;
+endmodule
+/*--------------------------------------------------------------
+ * Arquivo   : estado7seg.v
+ * Projeto   : Jogo do Desafio da Memoria
+ * -------------------------------------------------------------
+ * Descricao : decodificador estado para 
+ *             display de 7 segmentos 
+ * 
+ * entrada: estado - codigo binario de 5 bits
+ * saida: display - codigo de 7 bits para display de 7 segmentos
+ * ----------------------------------------------------------------
+ * dica de uso: mapeamento para displays da placa DE0-CV
+ *              bit 6 mais significativo é o bit a esquerda
+ *              p.ex. display(6) -&gt; HEX0[6] ou HEX06
+ * ----------------------------------------------------------------
+ * Revisoes  :
+ *     Data        Versao  Autor             	Descricao
+ *     09/02/2021  1.0     Edson Midorikawa  	criacao
+ *     30/01/2025  2.0     Edson Midorikawa  	revisao p/ Verilog
+ * 	 11/02/2025  2.1 		Augusto Vaccarelli 	revisao
+ * ----------------------------------------------------------------
+ */
+
+module estado7seg (estado, display);
+    input      [4:0] estado;
+    output reg [6:0] display;
+
+
+always @(*) begin
+    case (estado)
+        5&apos;b00000: display = 7&apos;b1000000;  // 0
+        5&apos;b00001: display = 7&apos;b1111001;  // 1
+        5&apos;b00010: display = 7&apos;b0100100;  // 2
+        5&apos;b00011: display = 7&apos;b0110000;  // 3
+        5&apos;b00100: display = 7&apos;b0011001;  // 4
+        5&apos;b00101: display = 7&apos;b0010010;  // 5
+        5&apos;b00110: display = 7&apos;b0000010;  // 6
+        5&apos;b00111: display = 7&apos;b1111000;  // 7
+        5&apos;b01000: display = 7&apos;b0000000;  // 8
+        5&apos;b01001: display = 7&apos;b0010000;  // 9
+        5&apos;b01010: display = 7&apos;b0001000;  // A
+        5&apos;b01011: display = 7&apos;b0000011;  // B
+        5&apos;b01100: display = 7&apos;b1000110;  // C
+        5&apos;b01101: display = 7&apos;b0100001;  // D
+        5&apos;b01110: display = 7&apos;b0000110;  // E
+        5&apos;b01111: display = 7&apos;b0001110;  // F
+        5&apos;b10000: display = 7&apos;b1111110;  // 10
+        5&apos;b10001: display = 7&apos;b1111101;  // 11
+        5&apos;b10010: display = 7&apos;b1111011;  // 12
+        5&apos;b10011: display = 7&apos;b1110111;  // 13
+        5&apos;b10100: display = 7&apos;b1101111;  // 14
+        5&apos;b10101: display = 7&apos;b1011111;  // 15
+        5&apos;b10110: display = 7&apos;b0111111;  // 16
+        5&apos;b10111: display = 7&apos;b1111100;  // 17
+        5&apos;b11000: display = 7&apos;b1110011;  // 18
+        5&apos;b11001: display = 7&apos;b1100111;  // 19
+        5&apos;b11010: display = 7&apos;b1001111;  // 1A
+        5&apos;b11011: display = 7&apos;b0011111;  // 1B
+        5&apos;b11100: display = 7&apos;b1110001;  // 1C
+        5&apos;b11101: display = 7&apos;b1100011;  // 1D
+        5&apos;b11110: display = 7&apos;b1000111;  // 1E
+        5&apos;b11111: display = 7&apos;b0001111;  // 1F
+        default:  display = 7&apos;b1111111;
+    endcase
+end
+
+endmodule
+
+
+/* ----------------------------------------------------------------
+ * Arquivo   : hexa7seg.v
+ * Projeto   : Experiencia 2 - Um Fluxo de Dados Simples
+ *--------------------------------------------------------------
+ * Descricao : decodificador hexadecimal para 
+ *             display de 7 segmentos 
+ * 
+ * entrada : hexa - codigo binario de 4 bits hexadecimal
+ * saida   : sseg - codigo de 7 bits para display de 7 segmentos
+ *
+ * baseado no componente bcd7seg.v da Intel FPGA
+ *--------------------------------------------------------------
+ * dica de uso: mapeamento para displays da placa DE0-CV
+ *              bit 6 mais significativo é o bit a esquerda
+ *              p.ex. sseg(6) -&gt; HEX0[6] ou HEX06
+ *--------------------------------------------------------------
+ * Revisoes  :
+ *     Data        Versao  Autor             Descricao
+ *     24/12/2023  1.0     Edson Midorikawa  criacao
+ *--------------------------------------------------------------
+ */
+
+module hexa7seg (hexa, display);
+    input      [3:0] hexa;
+    output reg [6:0] display;
+
+    /*
+     *    ---
+     *   | 0 |
+     * 5 |   | 1
+     *   |   |
+     *    ---
+     *   | 6 |
+     * 4 |   | 2
+     *   |   |
+     *    ---
+     *     3
+     */
+        
+    always @(hexa)
+    case (hexa)
+        4&apos;h0:    display = 7&apos;b1000000;
+        4&apos;h1:    display = 7&apos;b1111001;
+        4&apos;h2:    display = 7&apos;b0100100;
+        4&apos;h3:    display = 7&apos;b0110000;
+        4&apos;h4:    display = 7&apos;b0011001;
+        4&apos;h5:    display = 7&apos;b0010010;
+        4&apos;h6:    display = 7&apos;b0000010;
+        4&apos;h7:    display = 7&apos;b1111000;
+        4&apos;h8:    display = 7&apos;b0000000;
+        4&apos;h9:    display = 7&apos;b0010000;
+        4&apos;ha:    display = 7&apos;b0001000;
+        4&apos;hb:    display = 7&apos;b0000011;
+        4&apos;hc:    display = 7&apos;b1000110;
+        4&apos;hd:    display = 7&apos;b0100001;
+        4&apos;he:    display = 7&apos;b0000110;
+        4&apos;hf:    display = 7&apos;b0001110;
+        default: display = 7&apos;b1111111;
+    endcase
+endmodule
+
+
+module mux2x1_7 (
+    input   	[6:0]   D0,
+    input   	[6:0]   D1,
+    input     			  SEL,
+    output reg [6:0]   OUT
+);
+
+always @(*) begin
+    case (SEL)
+        1&apos;b0:    OUT = D0;
+        1&apos;b1:    OUT = D1;
+        default: OUT = 7&apos;b1111111; // saida em 1
+    endcase
+end
+
+endmodule
+/*------------------------------------------------------------------------
+ * Arquivo   : mux2x1.v
+ * Projeto   : Jogo do Desafio da Memoria
+ *------------------------------------------------------------------------
+ * Descricao : multiplexador 2x1
+ * 
+ * adaptado a partir do codigo my_4t1_mux.vhd do livro &quot;Free Range VHDL&quot;
+ * 
+ * exemplo de uso: ver testbench mux2x1_tb.v
+ *------------------------------------------------------------------------
+ * Revisoes  :
+ *     Data        Versao  Autor             Descricao
+ *     15/02/2024  1.0     Edson Midorikawa  criacao
+ *     31/01/2025  1.1     Edson Midorikawa  revisao
+ *------------------------------------------------------------------------
+ */
+
+module mux2x1 (
+    input   	[3:0]   D0,
+    input   	[3:0]   D1,
+    input     			  SEL,
+    output reg [3:0]   OUT
+);
+
+always @(*) begin
+    case (SEL)
+        1&apos;b0:    OUT = D0;
+        1&apos;b1:    OUT = D1;
+        default: OUT = 4&apos;b1111; // saida em 1
+    endcase
+end
+
+endmodule
+module S1_fluxo_dados (
+    // Inputs
+    input clock, //
+    input [6:0] botoes,//
+    // Sinais de Controle
+    input zeraR,//
+    input registraR,//
+    input contaL,//
+    input zeraL,//
+    input contaE,//
+    input zeraE,//
+    input memoria,
+	 input nivel,
+    input zeraT,
+    input contaT,
+    input zeraT2,
+    input contaT2,
+    input mostraJ,
+    input mostraB,
+    input zeraMemErro,
+    input contaErro,
+    input zeraErro,
+    input regErro,
+    input zeraPontos,
+    input regPontos,
+    // Sinais de Condição
+    output enderecoIgualLimite, //
+    output botoesIgualMemoria,//
+    output fimL,//
+    output fimE, //
+    output jogadafeita,//
+    output timeout,
+	 output muda_leds,
+    // Depuração
+    output db_temjogada,//
+    output [3:0] db_limite, //
+    output [3:0] db_contagem,//
+    output [6:0] db_memoria,//
+    output [6:0] db_jogada,//
+	 output [6:0] leds,
+	 output [7:0] pontos
+);
+    wire [6:0] s_jogada;  // sinal interno para interligacao dos componentes
+    wire [3:0] s_contagem;
+    wire [6:0] s_memoria;
+    wire s_sinal;
+    wire [3:0] s_limite;
+    wire [6:0] s_memoria1;
+    wire [6:0] s_memoria2;
+    wire [6:0] s_mux;
+    wire s_fim;
+    wire [3:0] s_nivel = {nivel, 3&apos;b111};
+    wire [3:0] s_erros;
+    wire [3:0] m_erros;
+    assign s_sinal = botoes[0] | botoes[1] | botoes[2] | botoes[3] | botoes[4] | botoes[5] | botoes[6];
+    wire [7:0] s_pontos, s_resultado;
+    
+
+     // ======================================================
+    // Bloco de Contagem e Comparação da Sequência
+    // ======================================================
+    
+    // Contador que marca o limite (número de jogadas na rodada)
+    contador_163 ContLmt (
+      .clock( clock ),
+      .clr  ( ~zeraL ),
+      .ld   ( 1&apos;b1 ),
+      .ent  ( 1&apos;b1),
+      .enp  ( contaL ),
+      .D    ( 4&apos;b0 ),
+      .Q    ( s_limite ),
+      .rco  (s_fim)
+    );
+
+    // Comparador para verificar se o limite (s_limite) atingiu o nível esperado
+	  comparador_85 CompFim (
+      .A   ( s_limite ),
+      .B   ( s_nivel ),
+      .ALBi( 1&apos;b0 ),
+      .AGBi( 1&apos;b0 ),
+      .AEBi( 1&apos;b1 ),
+      .ALBo(  ),
+      .AGBo(  ),
+      .AEBo( fimL )
+    );
+
+    // Contador para endereçamento (endereço na ROM)
+    contador_163 ContEnd (
+      .clock( clock ),
+      .clr  ( ~zeraE ),
+      .ld   ( 1&apos;b1 ),
+      .ent  ( 1&apos;b1),
+      .enp  ( contaE ),
+      .D    ( 4&apos;b0 ),
+      .Q    ( s_contagem ),
+      .rco  ( fimE )
+    );
+    
+    // Comparador para verificar se o endereço é igual ao limite
+    comparador_85 CompLmt (
+      .A   ( s_limite ),
+      .B   ( s_contagem ),
+      .ALBi( 1&apos;b0 ),
+      .AGBi( 1&apos;b0 ),
+      .AEBi( 1&apos;b1 ),
+      .ALBo(  ),
+      .AGBo(  ),
+      .AEBo( enderecoIgualLimite )
+    );
+
+    // Registrador para armazenar a jogada dos botões (7 bits)
+    registrador_7 RegBotoes (
+      .clock  (clock),      
+      .clear  (zeraR),      
+      .enable (registraR),     
+      .D      (botoes), 
+      .Q      (s_jogada) 
+    );
+
+   // ROMs síncronas – memórias com a sequência esperada
+    sync_rom_16x4_1 memoria1 (
+      .clock (clock),
+      .address (s_contagem),
+      .data_out (s_memoria1)
+    );
+	 
+	 sync_rom_16x4_2 memoria2 (
+      .clock (clock),
+      .address (s_contagem),
+      .data_out (s_memoria2)
+    );
+    
+    // MUX para selecionar entre as duas ROMs
+    mux2x1_7 MUX_MEM (
+		 .D0(s_memoria1),
+		 .D1(s_memoria2),
+		 .SEL(memoria),
+		 .OUT(s_memoria)
+	 );
+	 
+    // Comparador para verificar se a jogada registrada é igual à esperada
+    comparador_85_7 CompJog (
+      .A   ( s_memoria ),
+      .B   ( s_jogada ),
+      .ALBi( 1&apos;b0 ),
+      .AGBi( 1&apos;b0 ),
+      .AEBi( 1&apos;b1 ),
+      .ALBo(  ),
+      .AGBo(  ),
+      .AEBo( botoesIgualMemoria )
+    );
+
+    edge_detector detector_borda (
+        .clock(clock),
+        .reset(zeraR),
+        .sinal(s_sinal),
+        .pulso(jogadafeita)
+    );
+
+    // Contadores para timeout e atualização dos LEDs
+    contador_m #(.M(5000), .N(13)) contador_5000(
+        .clock (clock),
+        .zera_as(1&apos;b0),
+        .zera_s (zeraT),
+        .conta (contaT),
+        .Q (),
+        .fim (timeout),
+        .meio () 
+
+    );
+	 contador_m #(.M(500), .N(13)) contador_500(
+        .clock (clock),
+        .zera_as(1&apos;b0),
+        .zera_s (zeraT2),
+        .conta (contaT2),
+        .Q (),
+        .fim (muda_leds),
+        .meio () 
+
+    );
+	// MUX para seleção de exibição: mostra a memória ou zero conforme mostraJ
+	mux2x1_7 MUX (
+        .D0(7&apos;b0000000),
+        .D1(s_memoria),
+        .SEL(mostraJ),
+        .OUT(s_mux)
+	 );
+	 
+    // Segundo MUX: seleciona entre o resultado do MUX anterior e os botões para dirigir os LEDs
+    mux2x1_7 MUX2 (
+        .D0(s_mux),
+        .D1(botoes),
+        .SEL(mostraB),
+        .OUT(leds)
+	);
+
+    // RAM síncrona para armazenamento dos erros (MemErro)
+    sync_ram_16x4 MemErro (
+        .clock(clock),
+        .reset(zeraMemErro),
+        .write_enable(regErro),
+        .address (s_limite),
+        .data_in(s_erros),
+        .data_out(m_erros)
+	);
+	 
+    // Contador de erros (acumula os erros durante a rodada)
+    contador_163 ContErro (
+        .clock( clock ),
+        .clr  ( ~zeraErro ),
+        .ld   ( 1&apos;b1 ),
+        .ent  ( 1&apos;b1),
+        .enp  ( contaErro ),
+        .D    ( 4&apos;b0 ),
+        .Q    ( s_erros ),
+        .rco  (  )
+    );
+	 
+	// ======================================================
+    // Lógica de Cálculo de Pontos
+    // ======================================================
+    // Registrador de pontos – ao ser &quot;limpo&quot; (clear) carrega o valor inicial de 100.
+    registrador_8_init RegPontos (
+      .clock  ( clock ),      
+      .clear  ( zeraPontos ),      
+      .enable ( regPontos ),     
+      .D      ( s_resultado ), 
+      .Q      ( s_pontos )
+    );
+    
+    // Unidade aritmética para atualizar a parcial de pontos.
+    // Observação: Durante a fase de pontuação, o mesmo contador (ContLmt) é reiniciado para iterar
+    // sobre as posições de MemErro. Para cada iteração, considera-se que:
+    //   round = s_limite + 1;         // round (1-based)
+    //   round_factor = 16 - round;     // quanto menor o número da rodada, maior a dedução
+    //   penalty = m_erros &gt;&gt; 1;        // m_erros * 0.5 (deslocamento à direita de 1 bit)
+    // A nova parcial é: current_score - (round_factor * penalty)
+    wire [4:0] round_num = {1&apos;b0, s_limite} + 5&apos;d1;  // converte s_limite (4 bits) para um número de rodada (1 a 16)
+    wire [4:0] round_factor = 5&apos;d16 - round_num;
+    wire [3:0] penalty = m_erros &gt;&gt; 1;  // divisão por 2
+    wire [8:0] deduction_temp = round_factor * penalty;  // produto (até 9 bits)
+    wire [7:0] deduction = deduction_temp[7:0];  // dedução (8 bits)
+    
+    // Cálculo da nova parcial: s_pontos é o acumulador atual de pontos
+    wire [7:0] calc_new_score = s_pontos - deduction;
+    
+    // A saída s_resultado da unidade aritmética é usada para atualizar o registrador de pontos
+    assign s_resultado = calc_new_score;
+	 
+
+    // saidas de depuracao
+    assign db_limite = s_limite;
+    assign db_temjogada = s_sinal;
+    assign db_contagem = s_contagem;
+    assign db_memoria = s_memoria;
+    assign db_jogada = s_jogada;
+	assign pontos = s_pontos;
+ endmodule
+ 
+module registrador_7 (
+    input        clock,
+    input        clear,
+    input        enable,
+    input  [6:0] D,
+    output [6:0] Q
+);
+
+    reg [6:0] IQ;
+
+    always @(posedge clock or posedge clear) begin
+        if (clear)
+            IQ &lt;= 0;
+        else if (enable)
+            IQ &lt;= D;
+    end
+
+    assign Q = IQ;
+
+endmodule
+
+// ======================================================
+// MÓDULO: registrador_8_init
+// ======================================================
+// Ao receber clear, carrega 100; em enable, atualiza com D.
+module registrador_8_init (
+    input        clock,
+    input        clear,
+    input        enable,
+    input  [7:0] D,
+    output reg [7:0] Q
+);
+    always @(posedge clock or posedge clear) begin
+        if (clear)
+            Q &lt;= 8&apos;d100;  // inicializa com 100 pontos
+        else if (enable)
+            Q &lt;= D;
+    end
+endmodule
+
+
+module sync_rom_16x4_1 (clock, address, data_out);
+    input            clock;
+    input      [3:0] address;
+    output reg [6:0] data_out;
+
+    always @ (posedge clock)
+    begin
+        case (address)
+            4&apos;b0000: data_out = 7&apos;b0000001;
+            4&apos;b0001: data_out = 7&apos;b0000010;
+            4&apos;b0010: data_out = 7&apos;b0000100;
+            4&apos;b0011: data_out = 7&apos;b0001000;
+            4&apos;b0100: data_out = 7&apos;b0010000;
+            4&apos;b0101: data_out = 7&apos;b0100000;
+            4&apos;b0110: data_out = 7&apos;b1000000;
+            4&apos;b0111: data_out = 7&apos;b0100000;
+            4&apos;b1000: data_out = 7&apos;b0010000;
+            4&apos;b1001: data_out = 7&apos;b0001000;
+            4&apos;b1010: data_out = 7&apos;b0000100;
+            4&apos;b1011: data_out = 7&apos;b0000010;
+            4&apos;b1100: data_out = 7&apos;b0000001;
+            4&apos;b1101: data_out = 7&apos;b0000010;
+            4&apos;b1110: data_out = 7&apos;b0000100;
+            4&apos;b1111: data_out = 7&apos;b0001000;
+        endcase
+    end
+endmodule
+
+module sync_rom_16x4_2 (clock, address, data_out);
+    input            clock;
+    input      [3:0] address;
+    output reg [6:0] data_out;
+
+    always @ (posedge clock)
+    begin
+        case (address)
+            4&apos;b0000: data_out = 7&apos;b0000001;
+            4&apos;b0001: data_out = 7&apos;b0000010;
+            4&apos;b0010: data_out = 7&apos;b0000100;
+            4&apos;b0011: data_out = 7&apos;b0001000;
+            4&apos;b0100: data_out = 7&apos;b0010000;
+            4&apos;b0101: data_out = 7&apos;b0100000;
+            4&apos;b0110: data_out = 7&apos;b1000000;
+            4&apos;b0111: data_out = 7&apos;b0100000;
+            4&apos;b1000: data_out = 7&apos;b0010000;
+            4&apos;b1001: data_out = 7&apos;b0001000;
+            4&apos;b1010: data_out = 7&apos;b0000100;
+            4&apos;b1011: data_out = 7&apos;b0000010;
+            4&apos;b1100: data_out = 7&apos;b0000001;
+            4&apos;b1101: data_out = 7&apos;b0000010;
+            4&apos;b1110: data_out = 7&apos;b0000100;
+            4&apos;b1111: data_out = 7&apos;b0001000;
+        endcase
+    end
+endmodule
+
+module sync_ram_16x4 (
+    input            clock,
+    input            reset,        // Novo sinal de reset síncrono
+    input            write_enable,
+    input      [3:0] address,
+    input      [3:0] data_in,
+    output reg [3:0] data_out
+);
+    reg [3:0] ram_block [0:15]; 
+
+    integer i; // variável para o for
+
+    always @(posedge clock) begin
+        if (reset) begin
+            // Zera toda a memória
+            for (i = 0; i &lt; 16; i = i + 1)
+                ram_block[i] &lt;= 4&apos;b0000;
+            // Zera a saída também
+            data_out &lt;= 4&apos;b0000;
+        end else begin
+            // Operação normal de escrita
+            // (só ocorre se address não estiver em &apos;x&apos;)
+            if (write_enable &amp;&amp; (address !== 4&apos;bx))
+                ram_block[address] &lt;= data_in;
+
+            // Proteção contra endereço indefinido
+            if (address === 4&apos;bx)
+                data_out &lt;= 4&apos;b0000;
+            else
+                data_out &lt;= ram_block[address];
+        end
+    end
+endmodule
+
+
+
+
+module comparador_85 (ALBi, AGBi, AEBi, A, B, ALBo, AGBo, AEBo);
+
+    input[3:0] A, B;
+    input      ALBi, AGBi, AEBi;
+    output     ALBo, AGBo, AEBo;
+    wire[4:0]  CSL, CSG;
+
+    assign CSL  = ~A + B + ALBi;
+    assign ALBo = ~CSL[4];
+    assign CSG  = A + ~B + AGBi;
+    assign AGBo = ~CSG[4];
+    assign AEBo = ((A == B) &amp;&amp; AEBi);
+
+endmodule /* comparador_85 */
+
+module comparador_85_7 (ALBi, AGBi, AEBi, A, B, ALBo, AGBo, AEBo);
+
+    input[6:0] A, B;
+    input      ALBi, AGBi, AEBi;
+    output     ALBo, AGBo, AEBo;
+    wire[7:0]  CSL, CSG;
+
+    assign CSL  = ~A + B + ALBi;
+    assign ALBo = ~CSL[7];
+    assign CSG  = A + ~B + AGBi;
+    assign AGBo = ~CSG[7];
+    assign AEBo = ((A == B) &amp;&amp; AEBi);
+
+endmodule /* comparador_85 */
+
+module contador_163 ( clock, clr, ld, ent, enp, D, Q, rco );
+    input clock, clr, ld, ent, enp;
+    input [3:0] D;
+    output reg [3:0] Q;
+    output reg rco;
+
+    always @ (posedge clock)
+        if (~clr)               Q &lt;= 4&apos;d0;
+        else if (~ld)           Q &lt;= D;
+        else if (ent &amp;&amp; enp)    Q &lt;= Q + 1&apos;b1;
+        else                    Q &lt;= Q;
+ 
+    always @ (Q or ent)
+        if (ent &amp;&amp; (Q == 4&apos;d15))   rco = 1;
+        else                       rco = 0;
+endmodule
+
+module edge_detector (
+    input  clock,
+    input  reset,
+    input  sinal,
+    output pulso
+);
+
+    reg reg0;
+    reg reg1;
+
+    always @(posedge clock or posedge reset) begin
+        if (reset) begin
+            reg0 &lt;= 1&apos;b0;
+            reg1 &lt;= 1&apos;b0;
+        end else if (clock) begin
+            reg0 &lt;= sinal;
+            reg1 &lt;= reg0;
+        end
+    end
+
+    assign pulso = ~reg1 &amp; reg0;
+
+endmodule
+module S1_unidade_controle (
+    input      clock,    // clock do sistema
+    input      reset,    // reset assíncrono
+    input      jogar,    // sinal para iniciar o jogo
+    input      fimL,     // sinal que indica que o contador de limite atingiu seu valor máximo (fim da contagem da rodada ou fim do jogo)
+    input      botoesIgualMemoria,  // resultado da comparação entre a jogada e a sequência armazenada
+    input      enderecoIgualLimite, // indica se o endereço (contagem) atingiu o limite esperado
+    input      jogada,   // sinal que indica que a jogada foi efetivada (detectada a borda)
+    input      timeout,  // sinal de tempo esgotado
+    input      muda_leds,// sinal que indica que os LEDs já foram atualizados
+    input treinamento,
+    output reg zeraT,     // zera temporizador T
+    output reg contaT,    // conta temporizador T
+    output reg zeraE,     // zera o contador de endereços (usado na leitura da memória)
+    output reg contaE,    // incrementa o contador de endereços
+    output reg zeraL,     // zera o contador de limite (que marca o tamanho da sequência ou o número da rodada)
+    output reg contaL,    // incrementa o contador de limite
+    output reg zeraR,     // zera o registrador de jogada
+    output reg registraR, // habilita o registrador de jogada
+    output reg pronto,    // sinal que indica que o jogo terminou (por acerto ou timeout)
+    output reg [4:0] db_estado,  // para depuração: exibe o estado atual da FSM
+    output reg acertou,   // sinaliza que a rodada foi concluída sem erros
+    output reg serrou,    // sinaliza que houve erro na jogada
+    output reg db_timeout,// depuração: indica timeout
+    output reg mostraJ,   // controla a exibição dos LEDs (modo “jogada”)
+    output reg mostraB,   // controla a exibição dos botões (modo “botão”)
+    output reg zeraT2,    // zera temporizador T2 (para atualização dos LEDs)
+    output reg contaT2,   // incrementa temporizador T2
+    output reg mostraPontos, // ativa a exibição dos pontos
+    output reg zeraMemErro,
+    output reg contaErro, // incrementa o contador de erros
+    output reg zeraErro,  // zera o contador de erros
+    output reg regErro,   // registra (salva) o valor de erro na memória
+    output reg zeraPontos,// clear no registrador de pontos (inicia com 100)
+    output reg regPontos  // atualiza o registrador de pontos com o novo valor parcial
+);
+
+    //=============================================================
+    // Definição dos estados
+    //=============================================================
+    parameter inicial        = 5&apos;b00000; // 0
+    parameter preparacao     = 5&apos;b00001; // 1
+    parameter espera_jogada  = 5&apos;b00011; // 3
+    parameter registra       = 5&apos;b00100; // 4
+    parameter comparacao     = 5&apos;b00101; // 5
+    parameter proximo        = 5&apos;b00110; // 6
+    parameter mostra_leds    = 5&apos;b00111; // 7
+    parameter comparaJ       = 5&apos;b01000; // 8
+    parameter incrementaE    = 5&apos;b01001; // 9
+    parameter preparaE       = 5&apos;b01100; // C
+    parameter fim_rodada     = 5&apos;b01011; // B
+    parameter prox_rodada    = 5&apos;b00010; // 2
+    parameter errou          = 5&apos;b01110; // E
+    parameter fim_acertou    = 5&apos;b01010; // A
+    parameter fim_timeout    = 5&apos;b01101; // D
+    parameter calc_pontos    = 5&apos;b10000; // 16
+    parameter salva_pontos   = 5&apos;b10001; // 17
+    parameter prox_pos       = 5&apos;b10010; // 18
+    parameter prep_fim       = 5&apos;b10011; // 19
+    parameter modo_treino    = 5&apos;b10100;
+
+    //=============================================================
+    // Variáveis de estado
+    //=============================================================
+    reg [4:0] Eatual, Eprox;
+
+    //=============================================================
+    // Memória de estado
+    //=============================================================
+    always @(posedge clock or posedge reset) begin
+        if (reset)
+            Eatual &lt;= inicial;
+        else
+            Eatual &lt;= Eprox;
+    end
+
+    //=============================================================
+    // Lógica de transição de estados
+    //=============================================================
+    always @* begin
+        case (Eatual)
+            inicial       : Eprox = jogar ? preparacao : inicial;
+            preparacao    : Eprox = treinamento ? modo_treino : mostra_leds;
+            mostra_leds   : Eprox = muda_leds ? comparaJ : mostra_leds;
+            comparaJ      : Eprox = enderecoIgualLimite ? preparaE : (muda_leds ? incrementaE : comparaJ);
+            preparaE      : Eprox = espera_jogada;
+            incrementaE   : Eprox = mostra_leds;
+            espera_jogada : Eprox = timeout ? fim_timeout : (jogada ? registra : espera_jogada);
+            registra      : Eprox = comparacao;
+            comparacao    : Eprox = (!botoesIgualMemoria) ? errou : (enderecoIgualLimite ? fim_rodada : proximo);
+            proximo       : Eprox = espera_jogada;
+            fim_rodada    : Eprox = muda_leds ? (fimL ? prep_fim : prox_rodada) : fim_rodada;
+            prox_rodada   : Eprox = mostra_leds;
+            errou         : Eprox = mostra_leds;
+            fim_acertou   : Eprox = jogar ? preparacao : fim_acertou;
+            fim_timeout   : Eprox = jogar ? preparacao : fim_timeout;
+            // Fase de cálculo dos pontos
+            prep_fim      : Eprox = calc_pontos;       // Prepara o datapath (zera ContLmt e RegPontos)
+            calc_pontos   : Eprox = salva_pontos;      // Espera um ciclo para estabilizar os valores
+            salva_pontos  : Eprox = fimL ? fim_acertou : prox_pos;  // Se ContLmt atingiu fim, vai para fim_acertou; caso contrário, avança para próxima posição
+            prox_pos      : Eprox = calc_pontos;       // Incrementa ContLmt (e outras funções) para iterar MemErro e retorna a fase de cálculo
+            modo_treino   : Eprox = treinamento ? modo_treino : inicial;
+            default       : Eprox = inicial;
+        endcase
+    end
+
+    //=============================================================
+    // Lógica de saída (FSM – Moore)
+    //=============================================================
+    always @* begin
+        // Zera o contador de endereços (usado na leitura da ROM)
+        zeraE     = (Eatual == preparacao || Eatual == prox_rodada || Eatual == preparaE || Eatual == errou || Eatual == prep_fim) ? 1&apos;b1 : 1&apos;b0;
+        // Zera o registrador de jogada
+        zeraR     = (Eatual == preparacao) ? 1&apos;b1 : 1&apos;b0;
+        // Zera o contador de limite – inclui o estado prep_fim para reinicializar a contagem para iteração na MemErro
+        zeraL     = (Eatual == preparacao || Eatual == prep_fim) ? 1&apos;b1 : 1&apos;b0;
+        // Habilita o registrador de jogada
+        registraR = (Eatual == registra) ? 1&apos;b1 : 1&apos;b0;
+        // Incrementa o contador de endereços
+        contaE    = (Eatual == proximo || Eatual == incrementaE) ? 1&apos;b1 : 1&apos;b0;
+        // Incrementa o contador de limite; agora também em prox_pos para passar para a próxima posição
+        contaL    = (Eatual == prox_rodada || Eatual == prox_pos) ? 1&apos;b1 : 1&apos;b0;
+        // O jogo está pronto (terminado) quando chega em fim_acertou ou fim_timeout
+        pronto    = (Eatual == fim_acertou || Eatual == fim_timeout) ? 1&apos;b1 : 1&apos;b0;
+        // Acertou se terminou sem erros
+        acertou   = (Eatual == fim_acertou) ? 1&apos;b1 : 1&apos;b0;
+        // Sinaliza erro na jogada
+        serrou    = (Eatual == errou) ? 1&apos;b1 : 1&apos;b0;
+        // Zera temporizador T
+        zeraT     = (Eatual == preparacao || Eatual == proximo || Eatual == prox_rodada) ? 1&apos;b1 : 1&apos;b0;
+        // Temporizador T atua na espera de jogada
+        contaT    = (Eatual == espera_jogada) ? 1&apos;b1 : 1&apos;b0;
+        // Depuração: timeout ativo em fim_timeout
+        db_timeout = (Eatual == fim_timeout) ? 1&apos;b1 : 1&apos;b0;
+        // Zera temporizador T2; inclui também o prep_fim para preparar a fase de pontos
+        zeraT2    = (Eatual == preparacao || Eatual == prox_rodada || Eatual == comparacao || Eatual == errou || Eatual == prep_fim) ? 1&apos;b1 : 1&apos;b0;
+        // Conta temporizador T2
+        contaT2   = (Eatual == mostra_leds || Eatual == incrementaE || Eatual == comparaJ || Eatual == fim_rodada) ? 1&apos;b1 : 1&apos;b0;
+        // Exibe os LEDs da sequência
+        mostraJ   = (Eatual == mostra_leds) ? 1&apos;b1 : 1&apos;b0;
+        // Exibe o conteúdo dos botões (quando apropriado)
+        mostraB   = (Eatual == espera_jogada || Eatual == registra || Eatual == comparacao || Eatual == fim_rodada || Eatual == modo_treino) ? 1&apos;b1 : 1&apos;b0;
+        // Durante a fase de pontuação, ativa a exibição dos pontos
+        mostraPontos = (Eatual == errou || Eatual == fim_acertou || Eatual == fim_timeout ||
+                        Eatual == calc_pontos || Eatual == salva_pontos || Eatual == prox_pos || Eatual == prep_fim)
+                        ? 1&apos;b1 : 1&apos;b0;
+        zeraMemErro = (Eatual == preparacao) ? 1&apos;b1 : 1&apos;b0;
+        // Zera o contador de erros (usado para registrar os erros da rodada)
+        zeraErro  = (Eatual == preparacao || Eatual == prox_rodada) ? 1&apos;b1 : 1&apos;b0;
+        // Incrementa o contador de erros
+        contaErro = (Eatual == errou) ? 1&apos;b1 : 1&apos;b0;
+        // Registra os erros na memória (MemErro)
+        regErro   = (Eatual == fim_rodada) ? 1&apos;b1 : 1&apos;b0;
+        // No estado prep_fim, realiza clear no registrador de pontos (inicializa com 100)
+        zeraPontos = (Eatual == prep_fim) ? 1&apos;b1 : 1&apos;b0;
+        // Atualiza o registrador de pontos (RegPontos) somente em salva_pontos
+        regPontos  = (Eatual == salva_pontos) ? 1&apos;b1 : 1&apos;b0;
+
+        //=============================================================
+        // Saída de depuração: db_estado
+        //=============================================================
+        case (Eatual)
+            inicial      : db_estado = 5&apos;b00000; // 0
+            preparacao   : db_estado = 5&apos;b00001; // 1
+            mostra_leds  : db_estado = 5&apos;b00111; // 7
+            comparaJ     : db_estado = 5&apos;b01000; // 8
+            incrementaE  : db_estado = 5&apos;b01001; // 9
+            espera_jogada: db_estado = 5&apos;b00011; // 3
+            registra     : db_estado = 5&apos;b00100; // 4
+            comparacao   : db_estado = 5&apos;b00101; // 5
+            proximo      : db_estado = 5&apos;b00110; // 6
+            fim_rodada   : db_estado = 5&apos;b01011; // B
+            preparaE     : db_estado = 5&apos;b01100; // C
+            prox_rodada  : db_estado = 5&apos;b00010; // 2
+            errou        : db_estado = 5&apos;b01110; // E
+            fim_acertou  : db_estado = 5&apos;b01010; // A
+            fim_timeout  : db_estado = 5&apos;b01101; // D
+            calc_pontos  : db_estado = 5&apos;b10000; // 16
+            salva_pontos : db_estado = 5&apos;b10001; // 17
+            prox_pos     : db_estado = 5&apos;b10010; // 18
+            prep_fim     : db_estado = 5&apos;b10011; // 19
+            modo_treino  : db_estado = 5&apos;b10100; // 20
+            default      : db_estado = 5&apos;b01111; // F
+
+        endcase
+    end
+
+endmodule
+module memoria_notas(endereco, nota);
+    input   	[5:0]   endereco;
+    output reg [2:0]   nota;
+
+    reg [3:0] notas [64:0];
+    //$readmemb(&quot;memoria_notas.mem&quot;, notas);
+
+    always @(*)begin
+        nota &lt;= notas[endereco];
+    end
+
+    initial
+        begin
+            //notas teste
+            notas[0]  = 4&apos;b000;
+            notas[1]  = 4&apos;b001;
+            notas[2]  = 4&apos;b010;
+            notas[3]  = 4&apos;b011;
+            notas[4]  = 4&apos;b100;
+            notas[5]  = 4&apos;b101;
+            notas[6]  = 4&apos;b110;
+            notas[7]  = 4&apos;b110;
+            notas[8]  = 4&apos;b101;
+            notas[9]  = 4&apos;b100;
+            notas[10] = 4&apos;b011;
+            notas[11] = 4&apos;b010;
+            notas[12] = 4&apos;b001;
+            notas[13] = 4&apos;b000;
+            notas[14] = 4&apos;b011;
+            notas[15] = 4&apos;b110;
+
+            //notas desafio1
+            notas[16]  = 4&apos;b000;
+            notas[17]  = 4&apos;b001;
+            notas[18]  = 4&apos;b010;
+            notas[19]  = 4&apos;b011;
+            notas[20]  = 4&apos;b100;
+            notas[21]  = 4&apos;b101;
+            notas[22]  = 4&apos;b110;
+            notas[23]  = 4&apos;b110;
+            notas[24]  = 4&apos;b101;
+            notas[25]  = 4&apos;b100;
+            notas[26]  = 4&apos;b011;
+            notas[27]  = 4&apos;b010;
+            notas[28]  = 4&apos;b001;
+            notas[29]  = 4&apos;b000;
+            notas[30]  = 4&apos;b011;
+            notas[31]  = 4&apos;b110;
+
+            //notas desafio2
+            notas[32]  = 4&apos;b000;
+            notas[33]  = 4&apos;b001;
+            notas[34]  = 4&apos;b010;
+            notas[35]  = 4&apos;b011;
+            notas[36]  = 4&apos;b100;
+            notas[37]  = 4&apos;b101;
+            notas[38]  = 4&apos;b110;
+            notas[39]  = 4&apos;b110;
+            notas[40]  = 4&apos;b101;
+            notas[41]  = 4&apos;b100;
+            notas[42]  = 4&apos;b011;
+            notas[43]  = 4&apos;b010;
+            notas[44]  = 4&apos;b001;
+            notas[45]  = 4&apos;b000;
+            notas[46]  = 4&apos;b011;
+            notas[47]  = 4&apos;b110;
+
+            //notas desafio3
+            notas[48]  = 4&apos;b000;
+            notas[49]  = 4&apos;b001;
+            notas[50]  = 4&apos;b010;
+            notas[51]  = 4&apos;b011;
+            notas[52]  = 4&apos;b100;
+            notas[53]  = 4&apos;b101;
+            notas[54]  = 4&apos;b110;
+            notas[55]  = 4&apos;b110;
+            notas[56]  = 4&apos;b101;
+            notas[57]  = 4&apos;b100;
+            notas[58]  = 4&apos;b011;
+            notas[59]  = 4&apos;b010;
+            notas[60]  = 4&apos;b001;
+            notas[61]  = 4&apos;b000;
+            notas[62]  = 4&apos;b011;
+            notas[63]  = 4&apos;b110;
+
+        end 
+endmodule</string>
+        </entry>
+        <entry>
+          <string>externalOutputs</string>
+          <string>pronto,acertou,errou,db_jogar,db_botoesIgualMemoria,db_tem_jogada,db_contagem:7,db_memoria:7,db_limite:7,db_jogadafeita:7,db_estado:7,db_timeout,db_clock,leds:7,disp_hund:7,disp_tens:7,disp_ones:7</string>
+        </entry>
+      </elementAttributes>
+      <pos x="680" y="300"/>
+    </visualElement>
+    <visualElement>
+      <elementName>External</elementName>
+      <elementAttributes>
+        <entry>
+          <string>applicationType</string>
+          <appType>IVERILOG</appType>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>ampSig</string>
+        </entry>
+        <entry>
+          <string>externalInputs</string>
+          <string>Botao1,Botao2,Botao3,Botao4,Botao5,Botao6,Botao7</string>
+        </entry>
+        <entry>
+          <string>Code</string>
+          <string>module ampSig (
+	input Botao1,
+	input Botao2,
+	input Botao3,
+	input Botao4,
+	input Botao5,
+	input Botao6,
+	input Botao7,
+	output [6:0] Botoes
+);
+
+assign Botoes = {Botao7, Botao6, Botao5, Botao4, Botao3, Botao2, Botao1};
+
+endmodule</string>
+        </entry>
+        <entry>
+          <string>externalOutputs</string>
+          <string>Botoes:7</string>
+        </entry>
+        <entry>
+          <string>Width</string>
+          <int>7</int>
+        </entry>
+      </elementAttributes>
+      <pos x="420" y="420"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="60" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="100" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="140" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="180" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="220" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="260" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Button</elementName>
+      <elementAttributes/>
+      <pos x="300" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes/>
+      <pos x="1140" y="360"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>7</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1060" y="580"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>7</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1120" y="600"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>7</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1200" y="620"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>7</int>
+        </entry>
+      </elementAttributes>
+      <pos x="1140" y="560"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes/>
+      <pos x="460" y="660"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="920" y="320"/>
+      <p2 x="1120" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="80" y="320"/>
+      <p2 x="680" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="180" y="480"/>
+      <p2 x="420" y="480"/>
+    </wire>
+    <wire>
+      <p1 x="560" y="480"/>
+      <p2 x="600" y="480"/>
+    </wire>
+    <wire>
+      <p1 x="60" y="420"/>
+      <p2 x="420" y="420"/>
+    </wire>
+    <wire>
+      <p1 x="920" y="580"/>
+      <p2 x="1060" y="580"/>
+    </wire>
+    <wire>
+      <p1 x="260" y="520"/>
+      <p2 x="420" y="520"/>
+    </wire>
+    <wire>
+      <p1 x="1000" y="200"/>
+      <p2 x="1160" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="160" y="360"/>
+      <p2 x="680" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="1040" y="360"/>
+      <p2 x="1140" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="180" y="300"/>
+      <p2 x="680" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="40" y="300"/>
+      <p2 x="80" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="920" y="300"/>
+      <p2 x="1000" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="140" y="460"/>
+      <p2 x="420" y="460"/>
+    </wire>
+    <wire>
+      <p1 x="920" y="620"/>
+      <p2 x="1200" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="600" y="400"/>
+      <p2 x="680" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="920" y="560"/>
+      <p2 x="1140" y="560"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="340"/>
+      <p2 x="680" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="920" y="340"/>
+      <p2 x="1040" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="220" y="500"/>
+      <p2 x="420" y="500"/>
+    </wire>
+    <wire>
+      <p1 x="460" y="660"/>
+      <p2 x="680" y="660"/>
+    </wire>
+    <wire>
+      <p1 x="100" y="440"/>
+      <p2 x="420" y="440"/>
+    </wire>
+    <wire>
+      <p1 x="920" y="600"/>
+      <p2 x="1120" y="600"/>
+    </wire>
+    <wire>
+      <p1 x="80" y="380"/>
+      <p2 x="680" y="380"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="540"/>
+      <p2 x="420" y="540"/>
+    </wire>
+    <wire>
+      <p1 x="80" y="300"/>
+      <p2 x="80" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="1040" y="340"/>
+      <p2 x="1040" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="100" y="440"/>
+      <p2 x="100" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="260" y="520"/>
+      <p2 x="260" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="180" y="480"/>
+      <p2 x="180" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="1000" y="200"/>
+      <p2 x="1000" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="600" y="400"/>
+      <p2 x="600" y="480"/>
+    </wire>
+    <wire>
+      <p1 x="680" y="420"/>
+      <p2 x="680" y="660"/>
+    </wire>
+    <wire>
+      <p1 x="140" y="460"/>
+      <p2 x="140" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="540"/>
+      <p2 x="300" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="60" y="420"/>
+      <p2 x="60" y="620"/>
+    </wire>
+    <wire>
+      <p1 x="220" y="500"/>
+      <p2 x="220" y="620"/>
+    </wire>
+  </wires>
+  <measurementOrdering/>
+</circuit>
