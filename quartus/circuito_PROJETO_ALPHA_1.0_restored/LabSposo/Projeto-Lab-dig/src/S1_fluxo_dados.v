@@ -32,7 +32,7 @@ module S1_fluxo_dados (
     output fimE, //
     output jogadafeita,//
     output timeout,
-	output muda_nota,
+	 output muda_nota,
     // Sinal de Saída
     output [2:0] arduino_out,
     // Depuração

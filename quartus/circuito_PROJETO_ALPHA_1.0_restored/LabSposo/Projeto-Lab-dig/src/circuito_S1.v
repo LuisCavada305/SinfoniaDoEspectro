@@ -91,7 +91,7 @@ module circuito_S1 (
         .regPontos(s_regPontos),
         .sel_memoria_arduino (s_sel_memoria_arduino),
         .activateArduino (s_activateArdunino),
-		.arduino_out(arduino_out)
+		  .arduino_out(arduino_out)
     );
 
     // Instância do módulo de unidade de controle
