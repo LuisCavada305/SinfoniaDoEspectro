@@ -1,0 +1,26 @@
+Quartus Prime Archive log --	C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/circuito_projeto_alpha_2.0.qarlog
+
+Archive:	C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/circuito_projeto_alpha_2.0.qar
+Date:		Fri Mar 21 13:40:07 2025
+Quartus Prime		20.1.1 Build 720 11/11/2020 SJ Lite Edition
+
+	=========== Files Selected: ===========
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/S1_fluxo_dados.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/S1_unidade_controle.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/arduino_connector.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/assignment_defaults.qdf
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/bin2bcd.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/circuito_S1.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/circuito_exp5.qpf
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/circuito_exp5.qsf
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/contador_m.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/conversor7seg.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/display_pontos.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/estado7seg.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/hexa7seg.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/mux2x1.v
+C:/Users/LABPROC-PCS/Desktop/LabSposo/Projeto-Lab-dig/quartus/circuito_PROJETO_ALPHA_1.0_restored/S1BB7/circuito_S1_restored/circuito_exp6/mux2x1_7.v
+	======= Total: 15 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.

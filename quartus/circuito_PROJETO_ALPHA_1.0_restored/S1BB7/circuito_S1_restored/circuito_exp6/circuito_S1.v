@@ -26,7 +26,7 @@ module circuito_S1 (
     // output [6:0]  disp_hund, // display das centenas
     // output [6:0]  disp_tens, // display das dezenas
     // output [6:0]  disp_ones  // display das unidades
-    output [11:0] display,
+    output [11:0] display
 );
 
     // Sinais internos

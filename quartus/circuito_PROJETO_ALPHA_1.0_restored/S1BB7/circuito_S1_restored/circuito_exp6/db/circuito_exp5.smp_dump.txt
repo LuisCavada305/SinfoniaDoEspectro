@@ -1,0 +1,23 @@
+
+State Machine - |circuito_S1|S1_unidade_controle:UC|Eatual
+Name Eatual.modo_treino Eatual.prep_fim Eatual.prox_pos Eatual.salva_pontos Eatual.calc_pontos Eatual.errou Eatual.fim_timeout Eatual.preparaE Eatual.fim_rodada Eatual.fim_acertou Eatual.incrementaE Eatual.comparaJ Eatual.toca_nota Eatual.proximo Eatual.comparacao Eatual.registra Eatual.espera_jogada Eatual.prox_rodada Eatual.preparacao Eatual.inicial 
+Eatual.inicial 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+Eatual.preparacao 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+Eatual.prox_rodada 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+Eatual.espera_jogada 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+Eatual.registra 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+Eatual.comparacao 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+Eatual.proximo 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+Eatual.toca_nota 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+Eatual.comparaJ 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+Eatual.incrementaE 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+Eatual.fim_acertou 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+Eatual.fim_rodada 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.preparaE 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.fim_timeout 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.errou 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.calc_pontos 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.salva_pontos 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.prox_pos 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.prep_fim 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+Eatual.modo_treino 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 

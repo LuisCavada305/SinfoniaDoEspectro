@@ -307,7 +307,7 @@ module registrador_7_init (
 );
     always @(posedge clock or posedge clear) begin
         if (clear)
-            Q <= 8'd100;  // inicializa com 100 pontos
+            Q <= 7'd100;  // inicializa com 100 pontos
         else if (enable)
             Q <= D;
     end

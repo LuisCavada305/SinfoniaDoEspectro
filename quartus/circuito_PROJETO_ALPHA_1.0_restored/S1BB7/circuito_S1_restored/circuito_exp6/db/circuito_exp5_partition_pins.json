@@ -1,0 +1,229 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "pronto",
+					"strict" : false
+				},
+				{
+					"name" : "acertou",
+					"strict" : false
+				},
+				{
+					"name" : "errou",
+					"strict" : false
+				},
+				{
+					"name" : "arduino_out[0]",
+					"strict" : false
+				},
+				{
+					"name" : "arduino_out[1]",
+					"strict" : false
+				},
+				{
+					"name" : "arduino_out[2]",
+					"strict" : false
+				},
+				{
+					"name" : "db_jogar",
+					"strict" : false
+				},
+				{
+					"name" : "db_botoesIgualMemoria",
+					"strict" : false
+				},
+				{
+					"name" : "db_tem_jogada",
+					"strict" : false
+				},
+				{
+					"name" : "db_contagem[0]",
+					"strict" : false
+				},
+				{
+					"name" : "db_contagem[1]",
+					"strict" : false
+				},
+				{
+					"name" : "db_contagem[2]",
+					"strict" : false
+				},
+				{
+					"name" : "db_contagem[3]",
+					"strict" : false
+				},
+				{
+					"name" : "db_contagem[4]",
+					"strict" : false
+				},
+				{
+					"name" : "db_contagem[5]",
+					"strict" : false
+				},
+				{
+					"name" : "db_contagem[6]",
+					"strict" : false
+				},
+				{
+					"name" : "db_limite[0]",
+					"strict" : false
+				},
+				{
+					"name" : "db_limite[1]",
+					"strict" : false
+				},
+				{
+					"name" : "db_limite[2]",
+					"strict" : false
+				},
+				{
+					"name" : "db_limite[3]",
+					"strict" : false
+				},
+				{
+					"name" : "db_limite[4]",
+					"strict" : false
+				},
+				{
+					"name" : "db_limite[5]",
+					"strict" : false
+				},
+				{
+					"name" : "db_limite[6]",
+					"strict" : false
+				},
+				{
+					"name" : "db_estado[0]",
+					"strict" : false
+				},
+				{
+					"name" : "db_estado[1]",
+					"strict" : false
+				},
+				{
+					"name" : "db_estado[2]",
+					"strict" : false
+				},
+				{
+					"name" : "db_estado[3]",
+					"strict" : false
+				},
+				{
+					"name" : "db_estado[4]",
+					"strict" : false
+				},
+				{
+					"name" : "db_estado[5]",
+					"strict" : false
+				},
+				{
+					"name" : "db_estado[6]",
+					"strict" : false
+				},
+				{
+					"name" : "db_timeout",
+					"strict" : false
+				},
+				{
+					"name" : "db_clock",
+					"strict" : false
+				},
+				{
+					"name" : "leds[0]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[1]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[2]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[3]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[4]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[5]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[6]",
+					"strict" : false
+				},
+				{
+					"name" : "display[8]",
+					"strict" : false
+				},
+				{
+					"name" : "display[9]",
+					"strict" : false
+				},
+				{
+					"name" : "display[10]",
+					"strict" : false
+				},
+				{
+					"name" : "display[11]",
+					"strict" : false
+				},
+				{
+					"name" : "botoes[0]",
+					"strict" : false
+				},
+				{
+					"name" : "botoes[4]",
+					"strict" : false
+				},
+				{
+					"name" : "botoes[2]",
+					"strict" : false
+				},
+				{
+					"name" : "botoes[6]",
+					"strict" : false
+				},
+				{
+					"name" : "botoes[3]",
+					"strict" : false
+				},
+				{
+					"name" : "botoes[5]",
+					"strict" : false
+				},
+				{
+					"name" : "botoes[1]",
+					"strict" : false
+				},
+				{
+					"name" : "jogar",
+					"strict" : false
+				},
+				{
+					"name" : "clock",
+					"strict" : false
+				},
+				{
+					"name" : "nivel",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
+					"strict" : false
+				},
+				{
+					"name" : "treinamento",
+					"strict" : false
+				}
+			]
+		}
+	]
+}
