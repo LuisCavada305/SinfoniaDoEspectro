@@ -49,7 +49,7 @@ module circuito_S1 (
     wire s_contaT2;
     wire s_muda_nota;
     wire s_mostraJ, s_mostraB, s_mostraPontos, s_zeraPontos;
-    wire s_zeraMemErro, s_contaErro, s_zeraErro, s_regErro, s_regPontos;
+    wire s_contaErro, s_zeraErro, s_regPontos;
     wire s_sel_memoria_arduino, s_activateArdunino;
 
     // Instância do módulo de fluxo de dados
@@ -85,10 +85,8 @@ module circuito_S1 (
         .muda_nota(s_muda_nota),
         .zeraPontos(s_zeraPontos),
         .pontos(s_pontos),
-        .zeraMemErro (s_zeraMemErro),
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
-        .regErro(s_regErro),
         .regPontos(s_regPontos),
         .sel_memoria_arduino (s_sel_memoria_arduino),
         .activateArduino (s_activateArdunino),
@@ -125,10 +123,8 @@ module circuito_S1 (
         .muda_nota(s_muda_nota),
         .mostraPontos(s_mostraPontos),
         .zeraPontos(s_zeraPontos),
-        .zeraMemErro (s_zeraMemErro),
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
-        .regErro(s_regErro),
         .regPontos(s_regPontos),
         .treinamento(treinamento),
         .sel_memoria_arduino(s_sel_memoria_arduino),

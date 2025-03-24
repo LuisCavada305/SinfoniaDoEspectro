@@ -27,10 +27,8 @@ module S1_unidade_controle (
     output reg zeraT2,    // zera temporizador T2 (para atualização dos LEDs)
     output reg contaT2,   // incrementa temporizador T2
     output reg mostraPontos, // ativa a exibição dos pontos
-    output reg zeraMemErro,
     output reg contaErro, // incrementa o contador de erros
     output reg zeraErro,  // zera o contador de erros
-    output reg regErro,   // registra (salva) o valor de erro na memória
     output reg zeraPontos,// clear no registrador de pontos (inicia com 100)
     output reg regPontos,  // atualiza o registrador de pontos com o novo valor parcial
     output reg sel_memoria_arduino,
@@ -57,8 +55,6 @@ module S1_unidade_controle (
     parameter fim_timeout    = 5'b01101; // D
     parameter calc_pontos    = 5'b10000; // 16
     parameter salva_pontos   = 5'b10001; // 17
-    parameter prox_pos       = 5'b10010; // 18
-    parameter prep_fim       = 5'b10011; // 19
     parameter modo_treino    = 5'b10100;
 
     //=============================================================
@@ -91,16 +87,14 @@ module S1_unidade_controle (
             registra      : Eprox = comparacao;
             comparacao    : Eprox = (!botoesIgualMemoria) ? errou : (enderecoIgualLimite ? fim_rodada : proximo);
             proximo       : Eprox = espera_jogada;
-            fim_rodada    : Eprox = muda_nota ? (fimL ? prep_fim : prox_rodada) : fim_rodada;
+            fim_rodada    : Eprox = muda_nota ? calc_pontos : fim_rodada;
             prox_rodada   : Eprox = toca_nota;
             errou         : Eprox = toca_nota;
             fim_acertou   : Eprox = jogar ? preparacao : fim_acertou;
             fim_timeout   : Eprox = jogar ? preparacao : fim_timeout;
             // Fase de cálculo dos pontos
-            prep_fim      : Eprox = calc_pontos;       // Prepara o datapath (zera ContLmt e RegPontos)
             calc_pontos   : Eprox = salva_pontos;      // Espera um ciclo para estabilizar os valores
-            salva_pontos  : Eprox = fimL ? fim_acertou : prox_pos;  // Se ContLmt atingiu fim, vai para fim_acertou; caso contrário, avança para próxima posição
-            prox_pos      : Eprox = calc_pontos;       // Incrementa ContLmt (e outras funções) para iterar MemErro e retorna a fase de cálculo
+            salva_pontos  : Eprox = fimL ? fim_acertou : prox_rodada;  // Se ContLmt atingiu fim, vai para fim_acertou; caso contrário, avança para próxima posição
             modo_treino   : Eprox = treinamento ? modo_treino : inicial;
             default       : Eprox = inicial;
         endcase
@@ -142,19 +136,14 @@ module S1_unidade_controle (
         mostraJ   = (Eatual == toca_nota) ? 1'b1 : 1'b0;
         // Exibe o conteúdo dos botões (quando apropriado)
         mostraB   = (Eatual == espera_jogada || Eatual == registra || Eatual == comparacao || Eatual == fim_rodada || Eatual == modo_treino) ? 1'b1 : 1'b0;
-        // Durante a fase de pontuação, ativa a exibição dos pontos
-        mostraPontos = (Eatual == errou || Eatual == fim_acertou || Eatual == fim_timeout ||
-                        Eatual == calc_pontos || Eatual == salva_pontos || Eatual == prox_pos || Eatual == prep_fim)
-                        ? 1'b1 : 1'b0;
-        zeraMemErro = (Eatual == preparacao) ? 1'b1 : 1'b0;
+        // Ativa a exibição dos pontos
+        mostraPontos = (Eatual == inicial || Eatual == preparacao || Eatual == modo_treino)
+                        ? 1'b0 : 1'b1;
         // Zera o contador de erros (usado para registrar os erros da rodada)
         zeraErro  = (Eatual == preparacao || Eatual == prox_rodada) ? 1'b1 : 1'b0;
         // Incrementa o contador de erros
         contaErro = (Eatual == errou) ? 1'b1 : 1'b0;
-        // Registra os erros na memória (MemErro)
-        regErro   = (Eatual == fim_rodada) ? 1'b1 : 1'b0;
-        // No estado prep_fim, realiza clear no registrador de pontos (inicializa com 100)
-        zeraPontos = (Eatual == inicial ||Eatual == prep_fim) ? 1'b1 : 1'b0;
+        zeraPontos = (Eatual == inicial ||Eatual == preparacao) ? 1'b1 : 1'b0;
         // Atualiza o registrador de pontos (RegPontos) somente em salva_pontos
         regPontos  = (Eatual == salva_pontos) ? 1'b1 : 1'b0;
         // Seleciona a saída que vai para o arduino
@@ -183,8 +172,6 @@ module S1_unidade_controle (
             fim_timeout  : db_estado = 5'b01101; // D
             calc_pontos  : db_estado = 5'b10000; // 16
             salva_pontos : db_estado = 5'b10001; // 17
-            prox_pos     : db_estado = 5'b10010; // 18
-            prep_fim     : db_estado = 5'b10011; // 19
             modo_treino  : db_estado = 5'b10100; // 20
             default      : db_estado = 5'b01111; // F
 

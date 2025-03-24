@@ -17,10 +17,8 @@ module S1_fluxo_dados (
     input contaT2,
     input mostraJ,
     input mostraB,
-    input zeraMemErro,
     input contaErro,
     input zeraErro,
-    input regErro,
     input zeraPontos,
     input regPontos,
     input sel_memoria_arduino,
@@ -55,7 +53,6 @@ module S1_fluxo_dados (
     wire s_fim;
     wire [3:0] s_nivel = {nivel, 3'b111};
     wire [3:0] s_erros;
-    wire [3:0] m_erros;
     assign s_sinal = botoes[0] | botoes[1] | botoes[2] | botoes[3] | botoes[4] | botoes[5] | botoes[6];
     wire [6:0] s_pontos, s_resultado;
     wire [6:0] s_arduino_out;
@@ -197,16 +194,6 @@ module S1_fluxo_dados (
         .SEL(mostraB),
         .OUT(leds)
 	);
-
-    // RAM síncrona para armazenamento dos erros (MemErro)
-    sync_ram_16x4 MemErro (
-        .clock(clock),
-        .reset(zeraMemErro),
-        .write_enable(regErro),
-        .address (s_limite),
-        .data_in(s_erros),
-        .data_out(m_erros)
-	);
 	 
     // Contador de erros (acumula os erros durante a rodada)
     contador_163 ContErro (
@@ -232,25 +219,33 @@ module S1_fluxo_dados (
       .Q      ( s_pontos )
     );
     
-    // Unidade aritmética para atualizar a parcial de pontos.
-    // Observação: Durante a fase de pontuação, o mesmo contador (ContLmt) é reiniciado para iterar
-    // sobre as posições de MemErro. Para cada iteração, considera-se que:
-    //   round = s_limite + 1;         // round (1-based)
-    //   round_factor = 16 - round;     // quanto menor o número da rodada, maior a dedução
-    //   penalty = m_erros >> 1;        // m_erros * 0.5 (deslocamento à direita de 1 bit)
-    // A nova parcial é: current_score - (round_factor * penalty)
-    wire [4:0] round_num = {1'b0, s_limite} + 5'd1;  // converte s_limite (4 bits) para um número de rodada (1 a 16)
-    wire [4:0] round_factor = 5'd16 - round_num;
-    wire [3:0] penalty = m_erros >> 1;  // divisão por 2
-    wire [8:0] deduction_temp = round_factor * penalty;  // produto (até 9 bits)
-    wire [6:0] deduction = deduction_temp[7:0];  // dedução (8 bits)
+    // Definir o total de rodadas com base no nível:
+    // Se nivel = 0 (nível baixo) -> 8 rodadas; se nivel = 1 -> 16 rodadas.
+    wire [7:0] total_rounds = (nivel) ? 8'd16 : 8'd8;
+    // Soma dos números de 1 até total_rounds: total_rounds*(total_rounds+1)/2
+    wire [15:0] sum_rounds = (total_rounds * (total_rounds + 8'd1)) >> 1;  // divisão por 2
     
-    // Cálculo da nova parcial: s_pontos é o acumulador atual de pontos
-    wire [6:0] calc_new_score = s_pontos - deduction;
+    // Número da rodada atual (1-based): considerando que s_limite é o contador reiniciado a cada rodada.
+    wire [7:0] round_num = {4'b0, s_limite} + 8'd1;
     
-    // A saída s_resultado da unidade aritmética é usada para atualizar o registrador de pontos
-    assign s_resultado = calc_new_score;
-	 
+    // Cálculo dos pontos "base" para esta rodada, de forma que a soma dos pontos
+    // de todas as rodadas seja 100 se não houver erros.
+    wire [15:0] base_points_temp = round_num * 16'd100;
+    wire [7:0] base_points = base_points_temp / sum_rounds;  // divisão inteira
+    
+    // Penalidade: cada erro subtrai um valor fixo
+    parameter PENALTY_UNIT = 8'd2;  // 2 pontos por erro
+    wire [7:0] penalty = s_erros * PENALTY_UNIT;
+    
+    // Pontos ganhos na rodada: se a penalidade for maior que a base, ganha 0 pontos.
+    wire [7:0] round_gain = (base_points > penalty) ? (base_points - penalty) : 8'd0;
+    
+    // Acumulação dos pontos: s_pontos é o acumulador atual (inicializado com 0).
+    // Some o ganho da rodada, garantindo que o total não ultrapasse 100.
+    wire [8:0] temp_score = s_pontos + round_gain;  // 9 bits para prevenir overflow
+    wire [6:0] new_score = (temp_score > 9'd100) ? 7'd100 : temp_score[6:0];
+
+    assign s_resultado = new_score;
 
     // Conexão com o Arduino
     mux2x1_7 Arduino_sound (
@@ -307,7 +302,7 @@ module registrador_7_init (
 );
     always @(posedge clock or posedge clear) begin
         if (clear)
-            Q <= 7'd100;  // inicializa com 100 pontos
+            Q <= 7'd0;  // inicializa com 100 pontos
         else if (enable)
             Q <= D;
     end
