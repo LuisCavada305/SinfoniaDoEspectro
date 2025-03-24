@@ -245,7 +245,16 @@ module S1_fluxo_dados (
     wire [8:0] temp_score = s_pontos + round_gain;  // 9 bits para prevenir overflow
     wire [6:0] new_score = (temp_score > 9'd100) ? 7'd100 : temp_score[6:0];
 
-    assign s_resultado = new_score;
+    // Detecção da última rodada
+    wire last_round = (round_num == total_rounds);
+    
+    // Bônus: se for a última rodada e não houve erros (em toda a rodada, ou se o contador de erros for zero),
+    // soma 100 pontos (atenção: se desejar limitar o máximo a 100 mesmo com bônus, a lógica precisará ser ajustada).
+    wire [7:0] perfect = (last_round && (s_erros == 4'd0)) ? 1'b1 : 1'b0;
+    
+    // Atualiza o registrador de pontos com o novo valor:
+    // Se não for a última rodada, atualiza com new_score; se for, com final_score.
+    assign s_resultado = perfect ? 8'd100 : new_score;
 
     // Conexão com o Arduino
     mux2x1_7 Arduino_sound (

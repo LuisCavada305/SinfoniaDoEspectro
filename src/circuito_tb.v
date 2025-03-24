@@ -7,7 +7,8 @@ module circuito_S1_tb;
     reg         reset;
     reg         jogar;
     reg         memoria; // Seleciona qual ROM usar
-    reg         nivel;   // Nível (1 gera s_nivel = 4'b1111)
+    reg         treinamento;
+    reg         nivel;   // Nível (1 gera 16 rodadas, conforme s_nivel = 4'b1111)
     reg  [6:0]  botoes;
 
     // Saídas
@@ -27,9 +28,7 @@ module circuito_S1_tb;
     wire        db_clock;
     wire [6:0]  leds;
     // Displays para os pontos (três dígitos de 7 segmentos)
-    wire [6:0]  disp_hund; // centenas
-    wire [6:0]  disp_tens; // dezenas
-    wire [6:0]  disp_ones; // unidades
+    wire [11:0] display;
 
     // Instância do DUT (Circuito S1)
     circuito_S1 dut (
@@ -37,6 +36,7 @@ module circuito_S1_tb;
         .reset                (reset),
         .jogar                (jogar),
         .memoria              (memoria),
+        .treinamento          (treinamento),
         .nivel                (nivel),
         .botoes               (botoes),
         .pronto               (pronto),
@@ -53,16 +53,14 @@ module circuito_S1_tb;
         .db_timeout           (db_timeout),
         .db_clock             (db_clock),
         .leds                 (leds),
-        .disp_hund            (disp_hund),
-        .disp_tens            (disp_tens),
-        .disp_ones            (disp_ones)
+        .display              (display)
     );
 
     // Parâmetro de clock (por exemplo, 1us)
-    parameter clockPeriod = 1000000; // 1000 ns
+    parameter clockPeriod = 1000; // 1000 ns (1us)
 
     integer i, j;
-    // Definindo a sequência correta (os mesmos valores que constam nas ROMs, 7 bits)
+    // Definindo a sequência correta – esta deve corresponder à ROM 0 do fluxo de dados.
     reg [6:0] jogadas [0:15];
 
     // Variável para identificar o caso de teste
@@ -74,7 +72,7 @@ module circuito_S1_tb;
     end
     always #(clockPeriod/2) clock = ~clock;
 
-    // Inicialização da sequência (conforme as ROMs dos módulos sync_rom_16x4_x)
+    // Inicialização da sequência (valores idênticos aos definidos na ROM 0)
     initial begin
         jogadas[0]  = 7'b0000001;
         jogadas[1]  = 7'b0000010;
@@ -102,11 +100,12 @@ module circuito_S1_tb;
         reset   = 0;
         jogar   = 0;
         botoes  = 7'b0000000;
-        memoria = 0;   // Define qual ROM usar (0 ou 1)
-        nivel   = 1;   // Nível 1 (gera s_nivel = 4'b1111)
+        memoria = 0;   // Usa a ROM 0 (memória de jogadas certas)
+        nivel   = 1;   // Nível 1 -> 16 rodadas
+        treinamento = 0;
         #clockPeriod;
 
-        // Teste 1: Resetar o circuito
+        // Teste 1: Resetar o circuito (nota: o reset deve agora limpar os pontos para 0)
         $display("Teste %0d: Reset do circuito", caso);
         @(negedge clock);
         reset = 1;
@@ -121,33 +120,32 @@ module circuito_S1_tb;
         jogar = 0;
         #(10*clockPeriod);
 
-        // Simula várias rodadas em que o jogador acerta todas as jogadas.
-        // Neste exemplo, simulamos 4 rodadas (rodada 1 com 1 jogada, rodada 2 com 2 jogadas, etc.)
+        // Simula 16 rodadas em que o jogador acerta todas as jogadas.
+        // Para a rodada i, serão aplicadas (i+1) jogadas, seguindo a sequência correta.
         for (i = 0; i < 16; i = i + 1) begin
             caso = i + 1;
             $display("Rodada %0d iniciada", caso);
             for (j = 0; j <= i; j = j + 1) begin
-                // Aguarda o estado de espera (espera_jogada = 5'b00011)
+                // Aguarda o estado de espera (estado "espera_jogada", definido como 5'b00011)
                 while (dut.UC.Eatual !== 5'b00011) #(clockPeriod);
-                // Aplica a jogada correta (conforme o vetor jogadas)
+                // Aplica a jogada correta, conforme o vetor "jogadas" (memória de jogadas certas)
                 botoes = jogadas[j];
                 #(100*clockPeriod);
                 botoes = 7'b0000000;
                 #(10*clockPeriod);
             end
             $display("Rodada %0d finalizada", caso);
-            // Aguarda a transição entre rodadas
+            // Aguarda a transição entre rodadas (tempo para a lógica de pontos ser atualizada)
             #(50*clockPeriod);
         end
 
-        // Aguarda o fim do jogo (quando pronto estiver ativo)
+        // Aguarda o fim do jogo (quando o sinal "pronto" estiver ativo)
         while (!pronto) #(clockPeriod);
         
-        // Exibe o valor final de pontos (deve ser 100, pois nenhum erro foi cometido)
+        // Exibe o valor final de pontos – neste teste, como nenhuma rodada teve erros,
+        // a lógica deve acumular os ganhos por rodada e aplicar o bônus final (limitando a 100 pontos, se essa for a regra).
         $display("Jogo finalizado.");
         $display("Valor final de pontos = %d", dut.FD.s_pontos);
-        $display("Displays: Hundreds = %d, Tens = %d, Ones = %d", disp_hund, disp_tens, disp_ones);
-
         $finish;
     end
 

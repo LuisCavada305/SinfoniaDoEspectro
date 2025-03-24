@@ -44,7 +44,7 @@ module S1_unidade_controle (
     parameter registra       = 5'b00100; // 4
     parameter comparacao     = 5'b00101; // 5
     parameter proximo        = 5'b00110; // 6
-    parameter toca_nota    = 5'b00111; // 7
+    parameter toca_nota      = 5'b00111; // 7
     parameter comparaJ       = 5'b01000; // 8
     parameter incrementaE    = 5'b01001; // 9
     parameter preparaE       = 5'b01100; // C
@@ -105,17 +105,17 @@ module S1_unidade_controle (
     //=============================================================
     always @* begin
         // Zera o contador de endereços (usado na leitura da ROM)
-        zeraE     = (Eatual == preparacao || Eatual == prox_rodada || Eatual == preparaE || Eatual == errou || Eatual == prep_fim) ? 1'b1 : 1'b0;
+        zeraE     = (Eatual == preparacao || Eatual == prox_rodada || Eatual == preparaE || Eatual == errou) ? 1'b1 : 1'b0;
         // Zera o registrador de jogada
         zeraR     = (Eatual == preparacao) ? 1'b1 : 1'b0;
-        // Zera o contador de limite – inclui o estado prep_fim para reinicializar a contagem para iteração na MemErro
-        zeraL     = (Eatual == preparacao || Eatual == prep_fim) ? 1'b1 : 1'b0;
+        // Zera o contador de limite
+        zeraL     = (Eatual == preparacao) ? 1'b1 : 1'b0;
         // Habilita o registrador de jogada
         registraR = (Eatual == registra) ? 1'b1 : 1'b0;
         // Incrementa o contador de endereços
         contaE    = (Eatual == proximo || Eatual == incrementaE) ? 1'b1 : 1'b0;
-        // Incrementa o contador de limite; agora também em prox_pos para passar para a próxima posição
-        contaL    = (Eatual == prox_rodada || Eatual == prox_pos) ? 1'b1 : 1'b0;
+        // Incrementa o contador de limite
+        contaL    = (Eatual == prox_rodada) ? 1'b1 : 1'b0;
         // O jogo está pronto (terminado) quando chega em fim_acertou ou fim_timeout
         pronto    = (Eatual == fim_acertou || Eatual == fim_timeout) ? 1'b1 : 1'b0;
         // Acertou se terminou sem erros
@@ -128,8 +128,8 @@ module S1_unidade_controle (
         contaT    = (Eatual == espera_jogada) ? 1'b1 : 1'b0;
         // Depuração: timeout ativo em fim_timeout
         db_timeout = (Eatual == fim_timeout) ? 1'b1 : 1'b0;
-        // Zera temporizador T2; inclui também o prep_fim para preparar a fase de pontos
-        zeraT2    = (Eatual == preparacao || Eatual == prox_rodada || Eatual == comparacao || Eatual == errou || Eatual == prep_fim) ? 1'b1 : 1'b0;
+        // Zera temporizador T2
+        zeraT2    = (Eatual == preparacao || Eatual == prox_rodada || Eatual == comparacao || Eatual == errou) ? 1'b1 : 1'b0;
         // Conta temporizador T2
         contaT2   = (Eatual == toca_nota || Eatual == incrementaE || Eatual == comparaJ || Eatual == fim_rodada) ? 1'b1 : 1'b0;
         // Exibe os LEDs da sequência
@@ -137,8 +137,7 @@ module S1_unidade_controle (
         // Exibe o conteúdo dos botões (quando apropriado)
         mostraB   = (Eatual == espera_jogada || Eatual == registra || Eatual == comparacao || Eatual == fim_rodada || Eatual == modo_treino) ? 1'b1 : 1'b0;
         // Ativa a exibição dos pontos
-        mostraPontos = (Eatual == inicial || Eatual == preparacao || Eatual == modo_treino)
-                        ? 1'b0 : 1'b1;
+        mostraPontos = (Eatual == inicial || Eatual == preparacao || Eatual == modo_treino) ? 1'b0 : 1'b1;
         // Zera o contador de erros (usado para registrar os erros da rodada)
         zeraErro  = (Eatual == preparacao || Eatual == prox_rodada) ? 1'b1 : 1'b0;
         // Incrementa o contador de erros
