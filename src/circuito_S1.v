@@ -51,6 +51,7 @@ module circuito_S1 (
     wire s_mostraJ, s_mostraB, s_mostraPontos, s_zeraPontos;
     wire s_contaErro, s_zeraErro, s_regPontos;
     wire s_sel_memoria_arduino, s_activateArdunino;
+	 wire s_enderecoIgualMemoria;
 
     // Instância do módulo de fluxo de dados
     S1_fluxo_dados FD(
@@ -159,6 +160,8 @@ module circuito_S1 (
     assign db_jogar = jogar;
     assign db_botoesIgualMemoria = s_botoesIgualMemoria;
     assign db_clock = clock;
+	 assign db_memoria = s_memoria;
+	 assign db_jogadafeita = s_jogadafeita;
 
     // Instancia o novo módulo display_pontos para exibir os pontos em 3 displays de 7 segmentos.
     // display_pontos DP (
@@ -170,9 +173,9 @@ module circuito_S1 (
     // );
     
     conversor7seg convPontos (
-        .clock(clock),
-        .pontos(s_pontos),
-        .disp7 (display)
+        .clock		(clock),
+        .numero	(s_pontos),
+        .display 	(display)
     );
 
 endmodule

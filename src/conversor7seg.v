@@ -1,15 +1,15 @@
 module conversor7seg(clock, numero, display);  
     input               clock;
-    input       [6:0]   numero;
-    output reg  [11:0]  display;
+    input       [7:0]   numero;
+    output	reg [11:0]  display;
 
     reg     [3:0] enable;
     wire    [3:0] hundreds;
     wire    [3:0] tens;
     wire    [3:0] ones;
     wire    [1:0] s_contagem;
-    reg     [3:0] s_digito_bin;
-    wire    [6:0] tempDisp;
+	 reg     [3:0] s_digito_bcd;
+    wire    [7:0] s_display;
 
     always @(s_contagem) begin
         case (s_contagem)
@@ -21,17 +21,17 @@ module conversor7seg(clock, numero, display);
         endcase
 
         case (s_contagem)
-            2'b00   : s_digito_bin = ones;
-            2'b01   : s_digito_bin = tens;
-            2'b10   : s_digito_bin = hundreds;
-            2'b11   : s_digito_bin = 4'b1111;
-            default : s_digito_bin = 4'b1111;
+            2'b00   : s_digito_bcd = ones;
+            2'b01   : s_digito_bcd = tens;
+            2'b10   : s_digito_bcd = hundreds;
+            2'b11   : s_digito_bcd = 4'b1111;
+            default : s_digito_bcd = 4'b1111;
         endcase
     end
     
     // Unificacao dos sinais de enable e dos 7 segmentos
     always @(*) begin
-        display[7:0]    = s_digito_bcd;
+        display[7:0]    = s_display;
         display[11:8]   = enable;
     end
 
@@ -56,7 +56,7 @@ module conversor7seg(clock, numero, display);
 
     // Conversao BCD para display de 7 segmentos
     bin2sevenSeg bcd_disp(
-        .hexa   (s_digito_bin),
-        .display(s_digito_bcd)
+        .bcd   (s_digito_bcd),
+        .display(s_display)
     );
 endmodule

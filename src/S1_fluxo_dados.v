@@ -231,7 +231,7 @@ module S1_fluxo_dados (
     // Cálculo dos pontos "base" para esta rodada, de forma que a soma dos pontos
     // de todas as rodadas seja 100 se não houver erros.
     wire [15:0] base_points_temp = round_num * 16'd100;
-    wire [7:0] base_points = base_points_temp / sum_rounds;  // divisão inteira
+    wire [7:0] base_points = (base_points_temp / sum_rounds);  // divisão inteira
     
     // Penalidade: cada erro subtrai um valor fixo
     parameter PENALTY_UNIT = 8'd2;  // 2 pontos por erro
@@ -254,7 +254,7 @@ module S1_fluxo_dados (
     
     // Atualiza o registrador de pontos com o novo valor:
     // Se não for a última rodada, atualiza com new_score; se for, com final_score.
-    assign s_resultado = perfect ? 8'd100 : new_score;
+    assign s_resultado = perfect ? 7'd100 : new_score;
 
     // Conexão com o Arduino
     mux2x1_7 Arduino_sound (
