@@ -1,8 +1,8 @@
 module bin2bcd(
     input  [7:0] binary,
-    output [3:0] hundreds,
-    output [3:0] tens,
-    output [3:0] ones
+    output reg [3:0] hundreds,
+    output reg [3:0] tens,
+    output reg [3:0] ones
 );
     // Divisão para extrair centenas, dezenas e unidades
     assign hundreds = binary / 100;
