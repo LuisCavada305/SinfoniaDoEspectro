@@ -1,16 +1,15 @@
-module conversor7seg(  
-    input         clock,
-    input  [6:0]  pontos,
-    output reg [11:0] disp7  // Disp7 já é reg, não precisa de assign
-);
+module conversor7seg(clock, numero, display);  
+    input               clock;
+    input       [6:0]   numero;
+    output reg  [11:0]  display;
 
-    reg [3:0] enable;  // Alterado para reg
-    wire [3:0] hundreds;
-    wire [3:0] tens;
-    wire [3:0] ones;
-    wire [1:0] s_contagem;
-    reg [3:0] s_posicao;  // Alterado para reg
-    wire [6:0] tempDisp;
+    reg     [3:0] enable;
+    wire    [3:0] hundreds;
+    wire    [3:0] tens;
+    wire    [3:0] ones;
+    wire    [1:0] s_contagem;
+    reg     [3:0] s_digito_bin;
+    wire    [6:0] tempDisp;
 
     always @(s_contagem) begin
         case (s_contagem)
@@ -22,14 +21,21 @@ module conversor7seg(
         endcase
 
         case (s_contagem)
-            2'b00 : s_posicao = 4'b0001;
-            2'b01 : s_posicao = 4'b1111;
-            2'b10 : s_posicao = 4'b1010;
-            2'b11 : s_posicao = 4'b1000;
-            default:  s_posicao = 4'b1000;
+            2'b00   : s_digito_bin = ones;
+            2'b01   : s_digito_bin = tens;
+            2'b10   : s_digito_bin = hundreds;
+            2'b11   : s_digito_bin = 4'b1111;
+            default : s_digito_bin = 4'b1111;
         endcase
     end
+    
+    // Unificacao dos sinais de enable e dos 7 segmentos
+    always @(*) begin
+        display[7:0]    = s_digito_bcd;
+        display[11:8]   = enable;
+    end
 
+    // Conta ate 3
     contador_m  #(.M(4), .N(2)) contador_ordem(
         .clock (clock),
         .zera_as(1'b0),
@@ -42,22 +48,15 @@ module conversor7seg(
 
     // Conversão de 8 bits para 3 dígitos BCD
     bin2bcd conversor(    
-        .binary(pontos),
+        .binary(numero),
         .hundreds(hundreds),
         .tens(tens),
         .ones(ones)
     );
 
-    hexa7seg disp_hund_inst(
-        .hexa(s_posicao),
-        .display(tempDisp)
+    // Conversao BCD para display de 7 segmentos
+    bin2sevenSeg bcd_disp(
+        .hexa   (s_digito_bin),
+        .display(s_digito_bcd)
     );
-
-    // Atribuição dos 8 bits de tempDisp para disp7[7:0]
-    always @(*) begin
-        disp7[6:0] = 7'b1110111;
-		  disp7[7]  = 1'b0;
-        disp7[11:8] = enable; // Assign enable para os 4 bits mais significativos
-    end
-
 endmodule
