@@ -3,38 +3,39 @@ module conversor7seg(clock, numero, display);
     input       [7:0]   numero;
     output	reg [11:0]  display;
 
-    reg     [3:0] enable;
+    //reg     [3:0] enable;
     wire    [3:0] hundreds;
     wire    [3:0] tens;
     wire    [3:0] ones;
     wire    [1:0] s_contagem;
-	 reg     [3:0] s_digito_bcd;
+    wire    [3:0] s_digito_bcd;
     wire    [7:0] s_display;
 
     always @(s_contagem) begin
         case (s_contagem)
-            2'b00:    enable = 4'b1110; 
-            2'b01:    enable = 4'b1101;
-            2'b10:    enable = 4'b1011;
-            2'b11:    enable = 4'b0111;
-            default:  enable = 4'b0000; 
+            2'b00:    display[11:8] = 4'b1110; 
+            2'b01:    display[11:8] = 4'b1101;
+            2'b10:    display[11:8] = 4'b1011;
+            2'b11:    display[11:8] = 4'b0111;
+            default:  display[11:8] = 4'b0000; 
         endcase
 
         case (s_contagem)
-            2'b00   : s_digito_bcd = ones;
-            2'b01   : s_digito_bcd = tens;
-            2'b10   : s_digito_bcd = hundreds;
+            2'b00   : s_digito_bcd <= ones;
+            2'b01   : s_digito_bcd <= tens;
+            2'b10   : s_digito_bcd <= hundreds;
             2'b11   : s_digito_bcd = 4'b1111;
             default : s_digito_bcd = 4'b1111;
         endcase
     end
     
     // Unificacao dos sinais de enable e dos 7 segmentos
-    always @(*) begin
-        display[7:0]    = s_display;
-        display[11:8]   = enable;
-    end
-
+    //always @(*) begin
+    //    display[7:0]    = s_display;
+    //       = enable;
+    //end
+    assign display[7:0] = s_display;
+	
     // Conta ate 3
     contador_m  #(.M(4), .N(2)) contador_ordem(
         .clock (clock),
