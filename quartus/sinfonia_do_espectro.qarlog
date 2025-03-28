@@ -1,0 +1,36 @@
+Quartus Prime Archive log --	C:/Projetos/T4Bb7/Trabalho/atualizado/Projeto-Lab-dig/quartus/sinfonia_do_espectro.qarlog
+
+Archive:	C:/Projetos/T4Bb7/Trabalho/atualizado/Projeto-Lab-dig/quartus/sinfonia_do_espectro.qar
+Date:		Fri Mar 28 13:35:11 2025
+Quartus Prime		20.1.1 Build 720 11/11/2020 SJ Lite Edition
+
+	=========== Files Selected: ===========
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/arduino_connector.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/bin2bcd.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/bin2sevenSeg.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/calculadora_pontos.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/circuito_tb.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/comparador_85.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/comparador_85_7bits.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/contador_163.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/contador_m.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/conversor7seg.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/display_pontos.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/edge_detector.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/estado7seg.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/fluxo_dados.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/hexa7seg.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/mux2x1.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/mux2x1_7.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/mux_4x1_4bits.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/mux_4x1_8bits.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/sinfonia_do_espectro.qpf
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/sinfonia_do_espectro.qsf
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/sinfonia_do_espectro.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/tb_bin2bcd.v
+C:/Projetos/T4Bb7/Trabalho/Projeto-Lab-dig-FD-separado/src/unidade_controle.v
+c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf
+	======= Total: 25 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.

@@ -1,7 +1,7 @@
 module conversor7seg(clock, numero, display);  
     input               clock;
     input       [7:0]   numero;
-    output	reg [11:0]  display;
+    output	 [11:0]  display;
 
     //reg     [3:0] enable;
     wire    [3:0] hundreds;
@@ -47,12 +47,12 @@ module conversor7seg(clock, numero, display);
         .meio () 
     );
 
-    mux_4x1_8bits mux_dados(
+    mux_4x1_4bits mux_dados(
 	.D0(ones),
 	.D1(tens),
 	.D2(hundreds),
-	.D3(8'hff),
-	.Q(s_digito_bcd),
+	.D3(4'hf),
+	.OUT(s_digito_bcd),
 	.SEL(s_contagem)
     );
 
@@ -61,7 +61,7 @@ module conversor7seg(clock, numero, display);
 	.D1(4'b1101),
 	.D2(4'b1011),
 	.D3(4'b0111),
-	.Q(display[11:8]),
+	.OUT(display[11:8]),
 	.SEL(s_contagem)
     );
 
@@ -76,6 +76,6 @@ module conversor7seg(clock, numero, display);
     // Conversao BCD para display de 7 segmentos
     bin2sevenSeg bcd_disp(
         .bcd   (s_digito_bcd),
-	.display(display[7:0])
+		  .display(display[7:0])
     );
 endmodule

@@ -1,50 +1,56 @@
-module S1_fluxo_dados (
+module fluxo_dados (
+    
     // Inputs
-    input clock, //
-    input [6:0] botoes,//
+    input clock,
+    input [6:0] botoes,
+    
     // Sinais de Controle
-    input zeraR,//
-    input registraR,//
-    input contaL,//
-    input zeraL,//
-    input contaE,//
-    input zeraE,//
+    input zera_registrador_botoes,
+    input enable_registrador_botoes,
+    input enable_contador_rodada,
+    input zera_contador_rodada,
+    input enable_contador_jogada,
+    input zera_contador_jogada,
     input memoria,
 	 input nivel,
     input zeraT,
     input contaT,
-    input zeraT2,
-    input contaT2,
+    input zera_timeout_buzzer,
+    input conta_timeout_buzzer,
     input mostraJ,
     input mostraB,
-    input zeraMemErro,
     input contaErro,
     input zeraErro,
-    input regErro,
     input zeraPontos,
     input regPontos,
     input sel_memoria_arduino,
     input activateArduino,
+    input calcular,
+    
     // Sinais de Condição
     output enderecoIgualLimite, //
     output botoesIgualMemoria,//
     output fimL,//
     output fimE, //
-    output jogadafeita,//
+    output tem_jogada,//
     output timeout,
-	output muda_leds,
+	output muda_nota,
+    
     // Sinal de Saída
-    output arduino_out,
-    // Depuração
-    output db_temjogada,//
-    output [3:0] db_limite, //
-    output [3:0] db_contagem,//
-    output [6:0] db_memoria,//
-    output [6:0] db_jogada,//
-    output [6:0] leds,
-    output [7:0] pontos
+    output [2:0] arduino_out,
+    output [7:0] pontos,
+    
+    // Sinais de Depuração
+    output tem_botao_pressionado,
+    output [3:0] db_limite,
+    output [3:0] db_contagem,
+    output [6:0] db_memoria,
+    output [6:0] db_jogada,
+    output [6:0] leds
 );
-    wire [6:0] s_jogada;  // sinal interno para interligacao dos componentes
+
+    // sinal interno para interligacao dos componentes
+    wire [6:0] s_jogada;
     wire [3:0] s_contagem;
     wire [6:0] s_memoria;
     wire s_sinal;
@@ -55,10 +61,11 @@ module S1_fluxo_dados (
     wire s_fim;
     wire [3:0] s_nivel = {nivel, 3'b111};
     wire [3:0] s_erros;
-    wire [3:0] m_erros;
+	wire [7:0] s_erro_estendido = {4'h0,s_erros};
     assign s_sinal = botoes[0] | botoes[1] | botoes[2] | botoes[3] | botoes[4] | botoes[5] | botoes[6];
-    wire [7:0] s_pontos, s_resultado;
-    
+    wire [7:0] s_pontos; 
+	wire [7:0] s_resultado;
+    wire [6:0] s_arduino_out;
 
      // ======================================================
     // Bloco de Contagem e Comparação da Sequência
@@ -67,10 +74,10 @@ module S1_fluxo_dados (
     // Contador que marca o limite (número de jogadas na rodada)
     contador_163 ContLmt (
       .clock( clock ),
-      .clr  ( ~zeraL ),
+      .clr  ( ~zera_contador_rodada ),
       .ld   ( 1'b1 ),
       .ent  ( 1'b1),
-      .enp  ( contaL ),
+      .enp  ( enable_contador_rodada ),
       .D    ( 4'b0 ),
       .Q    ( s_limite ),
       .rco  (s_fim)
@@ -91,10 +98,10 @@ module S1_fluxo_dados (
     // Contador para endereçamento (endereço na ROM)
     contador_163 ContEnd (
       .clock( clock ),
-      .clr  ( ~zeraE ),
+      .clr  ( ~zera_contador_jogada ),
       .ld   ( 1'b1 ),
       .ent  ( 1'b1),
-      .enp  ( contaE ),
+      .enp  ( enable_contador_jogada ),
       .D    ( 4'b0 ),
       .Q    ( s_contagem ),
       .rco  ( fimE )
@@ -115,8 +122,8 @@ module S1_fluxo_dados (
     // Registrador para armazenar a jogada dos botões (7 bits)
     registrador_7 RegBotoes (
       .clock  (clock),      
-      .clear  (zeraR),      
-      .enable (registraR),     
+      .clear  (zera_registrador_botoes),      
+      .enable (enable_registrador_botoes),     
       .D      (botoes), 
       .Q      (s_jogada) 
     );
@@ -143,7 +150,7 @@ module S1_fluxo_dados (
 	 );
 	 
     // Comparador para verificar se a jogada registrada é igual à esperada
-    comparador_85_7 CompJog (
+    comparador_85_7bits CompJog (
       .A   ( s_memoria ),
       .B   ( s_jogada ),
       .ALBi( 1'b0 ),
@@ -156,13 +163,13 @@ module S1_fluxo_dados (
 
     edge_detector detector_borda (
         .clock(clock),
-        .reset(zeraR),
+        .reset(zera_registrador_botoes),
         .sinal(s_sinal),
-        .pulso(jogadafeita)
+        .pulso(tem_jogada)
     );
 
     // Contadores para timeout e atualização dos LEDs
-    contador_m #(.M(5000), .N(13)) contador_5000(
+    contador_m #(.M(60000), .N(13)) contador_5000(
         .clock (clock),
         .zera_as(1'b0),
         .zera_s (zeraT),
@@ -175,10 +182,10 @@ module S1_fluxo_dados (
 	 contador_m #(.M(500), .N(13)) contador_500(
         .clock (clock),
         .zera_as(1'b0),
-        .zera_s (zeraT2),
-        .conta (contaT2),
+        .zera_s (zera_timeout_buzzer),
+        .conta (conta_timeout_buzzer),
         .Q (),
-        .fim (muda_leds),
+        .fim (muda_nota),
         .meio () 
 
     );
@@ -197,16 +204,6 @@ module S1_fluxo_dados (
         .SEL(mostraB),
         .OUT(leds)
 	);
-
-    // RAM síncrona para armazenamento dos erros (MemErro)
-    sync_ram_16x4 MemErro (
-        .clock(clock),
-        .reset(zeraMemErro),
-        .write_enable(regErro),
-        .address (s_limite),
-        .data_in(s_erros),
-        .data_out(m_erros)
-	);
 	 
     // Contador de erros (acumula os erros durante a rodada)
     contador_163 ContErro (
@@ -219,58 +216,43 @@ module S1_fluxo_dados (
         .Q    ( s_erros ),
         .rco  (  )
     );
-	 
-	// ======================================================
-    // Lógica de Cálculo de Pontos
-    // ======================================================
-    // Registrador de pontos – ao ser "limpo" (clear) carrega o valor inicial de 100.
-    registrador_8_init RegPontos (
-      .clock  ( clock ),      
-      .clear  ( zeraPontos ),      
-      .enable ( regPontos ),     
-      .D      ( s_resultado ), 
-      .Q      ( s_pontos )
+
+
+    //Calculadora de Pontos
+    calculadora_pontos calculadora_de_pontos(
+        .calcular(calcular),
+        .rodada(s_contagem),
+        .erros(s_erro_estendido),
+        .pontos_in(pontos),
+        .pontos_out(s_resultado)
     );
-    
-    // Unidade aritmética para atualizar a parcial de pontos.
-    // Observação: Durante a fase de pontuação, o mesmo contador (ContLmt) é reiniciado para iterar
-    // sobre as posições de MemErro. Para cada iteração, considera-se que:
-    //   round = s_limite + 1;         // round (1-based)
-    //   round_factor = 16 - round;     // quanto menor o número da rodada, maior a dedução
-    //   penalty = m_erros >> 1;        // m_erros * 0.5 (deslocamento à direita de 1 bit)
-    // A nova parcial é: current_score - (round_factor * penalty)
-    wire [4:0] round_num = {1'b0, s_limite} + 5'd1;  // converte s_limite (4 bits) para um número de rodada (1 a 16)
-    wire [4:0] round_factor = 5'd16 - round_num;
-    wire [3:0] penalty = m_erros >> 1;  // divisão por 2
-    wire [8:0] deduction_temp = round_factor * penalty;  // produto (até 9 bits)
-    wire [7:0] deduction = deduction_temp[7:0];  // dedução (8 bits)
-    
-    // Cálculo da nova parcial: s_pontos é o acumulador atual de pontos
-    wire [7:0] calc_new_score = s_pontos - deduction;
-    
-    // A saída s_resultado da unidade aritmética é usada para atualizar o registrador de pontos
-    assign s_resultado = calc_new_score;
-	 
+
+    registrador_8_init registrador_Pontos(
+        .enable(regPontos),
+        .clock(clock),
+        .clear(zeraPontos),
+        .D(s_resultado),
+        .Q(pontos)
+    );
 
     // Conexão com o Arduino
     mux2x1_7 Arduino_sound (
         .D0 (botoes),
         .D1 (s_memoria),
         .SEL(sel_memoria_arduino),
-        .OUT (s_arduino_out)
+		.OUT (s_arduino_out)
     );
     arduino_connection Arduino_Play(
         .entrada (s_arduino_out),
         .enable (activateArduino),
-        .saida  (arduino_out)
+		.saida  (arduino_out)
     );
     // saidas de depuracao
     assign db_limite = s_limite;
-    assign db_temjogada = s_sinal;
+    assign tem_botao_pressionado = s_sinal;
     assign db_contagem = s_contagem;
     assign db_memoria = s_memoria;
     assign db_jogada = s_jogada;
-	assign pontos = s_pontos;
  endmodule
  
 module registrador_7 (
@@ -295,7 +277,7 @@ module registrador_7 (
 endmodule
 
 // ======================================================
-// MÓDULO: registrador_8_init
+// MÓDULO: registrador_7_init
 // ======================================================
 // Ao receber clear, carrega 100; em enable, atualiza com D.
 module registrador_8_init (
@@ -307,7 +289,7 @@ module registrador_8_init (
 );
     always @(posedge clock or posedge clear) begin
         if (clear)
-            Q <= 8'd100;  // inicializa com 100 pontos
+            Q <= 8'd0;  // inicializa com 100 pontos
         else if (enable)
             Q <= D;
     end
@@ -402,78 +384,4 @@ module sync_ram_16x4 (
                 data_out <= ram_block[address];
         end
     end
-endmodule
-
-
-
-
-module comparador_85 (ALBi, AGBi, AEBi, A, B, ALBo, AGBo, AEBo);
-
-    input[3:0] A, B;
-    input      ALBi, AGBi, AEBi;
-    output     ALBo, AGBo, AEBo;
-    wire[4:0]  CSL, CSG;
-
-    assign CSL  = ~A + B + ALBi;
-    assign ALBo = ~CSL[4];
-    assign CSG  = A + ~B + AGBi;
-    assign AGBo = ~CSG[4];
-    assign AEBo = ((A == B) && AEBi);
-
-endmodule /* comparador_85 */
-
-module comparador_85_7 (ALBi, AGBi, AEBi, A, B, ALBo, AGBo, AEBo);
-
-    input[6:0] A, B;
-    input      ALBi, AGBi, AEBi;
-    output     ALBo, AGBo, AEBo;
-    wire[7:0]  CSL, CSG;
-
-    assign CSL  = ~A + B + ALBi;
-    assign ALBo = ~CSL[7];
-    assign CSG  = A + ~B + AGBi;
-    assign AGBo = ~CSG[7];
-    assign AEBo = ((A == B) && AEBi);
-
-endmodule /* comparador_85 */
-
-module contador_163 ( clock, clr, ld, ent, enp, D, Q, rco );
-    input clock, clr, ld, ent, enp;
-    input [3:0] D;
-    output reg [3:0] Q;
-    output reg rco;
-
-    always @ (posedge clock)
-        if (~clr)               Q <= 4'd0;
-        else if (~ld)           Q <= D;
-        else if (ent && enp)    Q <= Q + 1'b1;
-        else                    Q <= Q;
- 
-    always @ (Q or ent)
-        if (ent && (Q == 4'd15))   rco = 1;
-        else                       rco = 0;
-endmodule
-
-module edge_detector (
-    input  clock,
-    input  reset,
-    input  sinal,
-    output pulso
-);
-
-    reg reg0;
-    reg reg1;
-
-    always @(posedge clock or posedge reset) begin
-        if (reset) begin
-            reg0 <= 1'b0;
-            reg1 <= 1'b0;
-        end else if (clock) begin
-            reg0 <= sinal;
-            reg1 <= reg0;
-        end
-    end
-
-    assign pulso = ~reg1 & reg0;
-
 endmodule
