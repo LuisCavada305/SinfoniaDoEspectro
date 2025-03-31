@@ -1,7 +1,9 @@
-module conversor7seg(clock, numero, display);  
+module conversor7seg(select, clock, numero, display);  
     input               clock;
+    input               select;
     input       [7:0]   numero;
-    output	 [11:0]  display;
+    input       [4:0]   letra;
+    output	   [11:0]  display;
 
     //reg     [3:0] enable;
     wire    [3:0] hundreds;
@@ -10,6 +12,8 @@ module conversor7seg(clock, numero, display);
     wire    [1:0] s_contagem;
     wire    [3:0] s_digito_bcd;
     wire    [7:0] s_display;
+    wire    [7:0] s_display_numero;
+    wire    [7:0] s_display_letra;
 
     //always @(s_contagem) begin
     //    case (s_contagem)
@@ -65,7 +69,7 @@ module conversor7seg(clock, numero, display);
 	.SEL(s_contagem)
     );
 
-    // Conversão de 8 bits para 3 dígitos BCD
+    // Conversão de 8 bits para 5 dígitos BCD
     bin2bcd conversor(    
         .binary(numero),
         .hundreds(hundreds),
@@ -76,6 +80,20 @@ module conversor7seg(clock, numero, display);
     // Conversao BCD para display de 7 segmentos
     bin2sevenSeg bcd_disp(
         .bcd   (s_digito_bcd),
-		  .display(display[7:0])
+		  .display(s_display_numero)
+    );
+
+    // Conversao letra para display de 7 segementos
+
+    letra2sevenSeg conv_letra(
+        .letra(letra),
+        .display(s_display_letra)
+    );
+
+    mux_2x1_8bits display_selector(
+        .D0(s_display_numero),
+        .D1(s_display_letra),
+        .SEL(select),
+        .OUT(display[7:0])
     );
 endmodule

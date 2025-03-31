@@ -18,6 +18,10 @@ module unidade_controle (
     output reg enable_contador_rodada,    // incrementa o contador de limite
     output reg zera_registrador_botoes,     // zera o registrador de jogada
     output reg enable_registrador_botoes, // habilita o registrador de jogada
+    output reg enable_registrador_musica,
+    output reg select_mux_display,
+    output reg zera_contador_msg,
+    output reg enable_contador_msg,
     output reg pronto,    // sinal que indica que o jogo terminou (por acerto ou timeout)
     output reg [4:0] db_estado,  // para depuração: exibe o estado atual da FSM
     output reg acertou,   // sinaliza que a rodada foi concluída sem erros
@@ -57,8 +61,11 @@ module unidade_controle (
     parameter fim_acertou    = 5'b01010; // A
     parameter fim_timeout    = 5'b01101; // D
     parameter calc_pontos    = 5'b10000; // 10
-    parameter salva_pontos   = 5'b10001; // 111
-    parameter modo_treino    = 5'b10100;
+    parameter salva_pontos   = 5'b10001; // 11
+    parameter modo_treino    = 5'b10110; // 16
+    parameter mostrar_msg    = 5'b10011; // 13
+    parameter prox_letra     = 5'b10100; // 14
+    parameter registra_musica= 5'b10101; // 15
 
     //=============================================================
     // Variáveis de estado
@@ -80,7 +87,10 @@ module unidade_controle (
     //=============================================================
     always @* begin
         case (Eatual)
-            inicial       : Eprox = jogar ? preparacao : inicial;
+            inicial       : Eprox = jogar ? mostrar_msg : inicial;
+            mostrar_msg   : Eprox = tem_jogada ? registra_musica : prox_letra;
+            prox_letra    : Eprox = mostrar_msg;
+            registra_musica: Eprox = preparacao;
             preparacao    : Eprox = treinamento ? modo_treino : toca_nota;
             toca_nota     : Eprox = muda_nota ? comparaJ : toca_nota;
             comparaJ      : Eprox = enderecoIgualLimite ? preparaE : (muda_nota ? incrementaE : comparaJ);
@@ -154,6 +164,10 @@ module unidade_controle (
         // Ativa a saída para o Arduino
         activateArduino = (Eatual == inicial || Eatual == preparacao) ? 1'b0 : 1'b1;
         calcular = (Eatual == calc_pontos) ? 1'b1 : 1'b0;
+        zera_contador_msg = (Eatual == inicial) ? 1'b1 : 1'b0; 
+        enable_contador_msg = (Eatual == prox_letra) ? 1'b1 : 1'b0;
+        enable_registrador_musica = (Eatual == registra_musica) ? 1'b1 : 1'b0;
+        select_mux_display = (Eatual == mostrar_msg || Eatual == espera_soltar || Eatual == toca_nota) ? 1'b1 : 1'b0;
         //=============================================================
         // Saída de depuração: db_estado
         //=============================================================
@@ -176,7 +190,10 @@ module unidade_controle (
             fim_timeout  : db_estado = 5'b01101; // D
             calc_pontos  : db_estado = 5'b10000; // 10
             salva_pontos : db_estado = 5'b10001; // 11
-            modo_treino  : db_estado = 5'b10100; // 20
+            modo_treino    : db_estado = 5'b10110; // 16
+            mostrar_msg    : db_estado = 5'b10011; // 13
+            prox_letra     : db_estado = 5'b10100; // 14
+            registra_musica: db_estado = 5'b10101; // 15
             default      : db_estado = 5'b01111; // F
 
         endcase

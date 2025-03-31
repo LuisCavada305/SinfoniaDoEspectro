@@ -66,8 +66,9 @@ module fluxo_dados (
     wire [7:0] s_pontos; 
 	wire [7:0] s_resultado;
     wire [6:0] s_arduino_out;
+    wire [4:0] s_endereco_msg;
 
-     // ======================================================
+    // ======================================================
     // Bloco de Contagem e Comparação da Sequência
     // ======================================================
     
@@ -177,9 +178,9 @@ module fluxo_dados (
         .Q (),
         .fim (timeout),
         .meio () 
-
     );
-	 contador_m #(.M(500), .N(13)) contador_500(
+
+	contador_m #(.M(500), .N(13)) contador_500(
         .clock (clock),
         .zera_as(1'b0),
         .zera_s (zera_timeout_buzzer),
@@ -187,8 +188,23 @@ module fluxo_dados (
         .Q (),
         .fim (muda_nota),
         .meio () 
-
     );
+
+    contador_m #(.M(21), .N(5)) contador_mensagem(
+        .clock (clock),
+        .zera_as(1'b0),
+        .zera_s (zera_contador_msg),
+        .conta (enable_contador_msg),
+        .Q (s_endereco_msg),
+        .fim (),
+        .meio () 
+    );
+
+    memoria_frase memoria_da_frase_inicial(
+        .address(s_endereco_msg),
+        .data_out()
+    )
+
 	// MUX para seleção de exibição: mostra a memória ou zero conforme mostraJ
 	mux2x1_7 MUX (
         .D0(7'b0000000),
@@ -294,6 +310,7 @@ module registrador_8_init (
             Q <= D;
     end
 endmodule
+
 
 
 module sync_rom_16x4_1 (clock, address, data_out);
