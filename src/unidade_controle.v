@@ -21,6 +21,7 @@ module unidade_controle (
     output reg enable_registrador_botoes, // habilita o registrador de jogada
     output reg enable_registrador_musica,
     output reg select_mux_display,
+    output reg select_letra,
     output reg zera_contador_msg,
     output reg enable_contador_msg,
     output reg zera_timer_msg,
@@ -173,6 +174,7 @@ module unidade_controle (
         select_mux_display = (Eatual == mostrar_msg || Eatual == espera_soltar || Eatual == toca_nota) ? 1'b1 : 1'b0;
         zera_timer_msg = (Eatual == prox_letra) ? 1'b1 : 1'b0;
         enable_timer_msg = (Eatual == mostrar_msg) ? 1'b1 : 1'b0;
+        select_letra = (Eatual == espera_soltar || Eatual == toca_nota)? 1'b1 : 1'b0;
 
         //=============================================================
         // Saída de depuração: db_estado

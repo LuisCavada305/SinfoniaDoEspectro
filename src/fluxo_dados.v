@@ -16,6 +16,7 @@ module fluxo_dados (
 	 input zera_contador_msg,
 	 input enable_contador_msg,
     input enable_registrador_musica,
+    input select_letra,
 	 input nivel,
     input zeraT,
     input contaT,
@@ -45,7 +46,7 @@ module fluxo_dados (
     // Sinal de Saída
     output [2:0] arduino_out,
     output [7:0] pontos,
-	 output [4:0] letra_frase_inicial,
+	output [4:0] letra,
     
     // Sinais de Depuração
     output tem_botao_pressionado,
@@ -76,6 +77,9 @@ module fluxo_dados (
     wire [4:0] s_contador_msg;
     wire [4:0] s_endereco_msg;
     wire [2:0] s_select_musica;
+	 wire [2:0] s_nota_pressionada;
+    wire [4:0] s_letra_da_nota;
+    wire [4:0] s_letra_frase_inicial;
 
     assign s_endereco_msg = s_contador_msg + 5'h03 - contagem_display;
 
@@ -211,7 +215,7 @@ module fluxo_dados (
 
     memoria_frase memoria_da_frase_inicial(
         .address(s_endereco_msg),
-        .data_out(letra_frase_inicial)
+        .data_out(s_letra_frase_inicial)
     );
     // Fim elementos mostrar mensagem inicial
 
@@ -278,7 +282,21 @@ module fluxo_dados (
     reg_decoder_8x3 Decodificador_musica(
         .enable (enable_registrador_musica),
         .data_in ({1'b0,botoes}),
-        .data_out (s_select_musica)
+        .data_out_sync (s_nota_pressionada),
+        .data_out_async (s_select_musica)
+    );
+
+    notas2letras decodificador_de_notas(
+        .nota(s_nota_pressionada),
+        .contagem_display(contagem_display),
+        .letras(s_letra_da_nota)
+    );
+
+    mux_2x1_5bits mux_letras(
+        .D0 (s_letra_frase_inicial),
+        .D1 (s_letra_da_nota),
+        .SEL (select_letra),
+        .OUT (letra)
     );
 
     // saidas de depuracao

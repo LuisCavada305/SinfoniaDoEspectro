@@ -36,7 +36,7 @@ module sinfonia_do_espectro (
     wire [3:0] s_limite;    // Contador de limite (4 bits)
     wire [6:0] s_memoria;
     wire [4:0] s_estado;
-	 wire [4:0] s_letra_frase_inicial;
+	 wire [4:0] s_letra;
     // Agora s_pontos é de 8 bits para representar a pontuação de 0 a 255 (inicialmente 100)
     wire [7:0] s_pontos;
     wire s_enderecoIgualLimite;
@@ -63,6 +63,8 @@ module sinfonia_do_espectro (
     wire s_enable_timer_msg;
     wire s_timeout_contador_msg;
     wire [1:0] s_contagem_display;
+    wire s_select_letra;
+    
 
     // Instância do módulo de fluxo de dados
     fluxo_dados FD(
@@ -81,6 +83,7 @@ module sinfonia_do_espectro (
         .timeout_contador_msg(s_timeout_contador_msg),
         .contagem_display(s_contagem_display),
         .enable_registrador_musica(s_enable_registrador_musica),
+        .select_letra(s_select_letra),
         .enderecoIgualLimite (s_enderecoIgualMemoria),
         .botoesIgualMemoria (s_botoesIgualMemoria),
         .fimL (s_fimL),
@@ -107,7 +110,7 @@ module sinfonia_do_espectro (
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
         .regPontos(s_regPontos),
-		  .letra_frase_inicial(s_letra_frase_inicial),
+		  .letra(s_letra),
         .sel_memoria_arduino (s_sel_memoria_arduino),
         .activateArduino (s_activateArdunino),
 		  .arduino_out(arduino_out)
@@ -140,6 +143,7 @@ module sinfonia_do_espectro (
         .enable_timer_msg(s_enable_timer_msg),
         .timeout_contador_msg(s_timeout_contador_msg),
         .select_mux_display(s_select_mux_display),
+        .select_letra(s_select_letra),
         .pronto (pronto),
         .db_estado (s_estado),
         .db_timeout(db_timeout),
@@ -210,7 +214,7 @@ module sinfonia_do_espectro (
         .clock		(clock),
         .numero	(s_pontos),
         .select (s_select_mux_display),
-		  .letra		(s_letra_frase_inicial),
+		  .letra		(s_letra),
         .contagem_display(s_contagem_display),
         .display 	(display)
     );
