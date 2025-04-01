@@ -14,42 +14,61 @@ String leituraSerial;
 // 0b000000-11 0b0110-11-00 == 0x03 0x6c
 // 0b000000-10 0b1010-00-00 == 0x02 0xa0
 // 0b000000-11 0b1110-11-00 == 0x03 0xec
-// 0b000000-11 0b1110-10-00 == 0x03 0xe8
+// 0b000000-11 0b1110-00-00 == 0x03 0xe0
 
-int leds_portb [] = {0x03, 0x00, 0x02, 0x02, 0x01, 0x03, 0x03, 0x02, 0x03, 0x03};
-int leds_portd [] = {0xac, 0xa0, 0xcc, 0xe8, 0xe0, 0x68, 0x6c, 0xa0, 0xec, 0xe8};
+// Mapeamento letras-display7seg:  POTRB | PORTD
+//   : 0b000000-00 0b0000-00-00 ==  0x00 |  0x00
+// A : 0b000000-11 0b1110-01-00 ==  0x03 |  0xE4
+// B : 0b000000-01 0b0110-11-00 ==  0x01 |  0x6C
+// C : 0b000000-11 0b0000-11-00 ==  0x03 |  0x0C
+// D : 0b000000-00 0b1110-11-00 ==  0x00 |  0xEC
+// E : 0b000000-11 0b0100-11-00 ==  0x03 |  0x4C
+// F : 0b000000-11 0b0100-01-00 ==  0x03 |  0x44
+// G : 0b000000-11 0b1110-10-00 ==  0x03 |  0xE8
+// H : 0b000000-01 0b1110-01-00 ==  0x01 |  0xE4
+// I : 0b000000-00 0b1010-00-00 ==  0x00 |  0xA0
+// J : 0b000000-00 0b1010-11-00 ==  0x00 |  0xAC
+// K : 0b000000-01 0b0100-01-00 ==  0x01 |  0x44
+// L : 0b000000-01 0b0000-11-00 ==  0x01 |  0x0C
+// M : 0b000000-10 0b0010-01-00 ==  0x02 |  0x24
+// N : 0b000000-11 0b1010-01-00 ==  0x03 |  0xA4
+// O : 0b000000-11 0b1010-11-00 ==  0x03 |  0xAC
+// P : 0b000000-11 0b1100-01-00 ==  0x03 |  0xC4
+// Q : 0b000000-11 0b1110-00-00 ==  0x03 |  0xE0
+// R : 0b000000-11 0b0000-01-00 ==  0x03 |  0x04
+// S : 0b000000-11 0b0110-10-00 ==  0x03 |  0x68 
+// T : 0b000000-01 0b0100-11-00 ==  0x01 |  0x4C
+// U : 0b000000-01 0b1010-11-00 ==  0x01 |  0xAC
+// V : 0b000000-00 0b0010-11-00 ==  0x00 |  0x2C
+// W : 0b000000-01 0b1000-10-00 ==  0x01 |  0x88
+// X : 0b000000-00 0b1110-00-00 ==  0x00 |  0xE0
+// Y : 0b000000-01 0b1110-10-00 ==  0x01 |  0xE8
+// Z : 0b000000-10 0b1100-11-00 ==  0x02 |  0xCC
+
+int portb_numeros [] = {0x03, 0x00, 0x02, 0x02, 0x01, 0x03, 0x03, 0x02, 0x03, 0x03};
+int portd_numeros [] = {0xac, 0xa0, 0xcc, 0xe8, 0xe0, 0x68, 0x6c, 0xa0, 0xec, 0xe8};
+
+int portb_letras [] = {0x00, 0x03, 0x01, 0x03, 0x00, 0x03, 0x03, 0x03, 0x01, 0x00, 0x00, 0x01, 0x01, 0x02, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x02};
+int portd_letras [] = {0x00, 0xE4, 0x6C, 0x0C, 0xEC, 0x4C, 0x44, 0xE8, 0xE4, 0xA0, 0xAC, 0x44, 0x0C, 0x24, 0xA4, 0xAC, 0xC4, 0xE0, 0x04, 0x68, 0x4C, 0xAC, 0x2C, 0x88, 0xE0, 0xE8, 0xCC};
 
 int enable [] = {0x38, 0x34, 0x2c, 0x1c};
+
+int sentenca [] = {5, 19, 3, 15, 12, 8, 1, 0, 21, 13, 1, 0, 13, 21, 19, 9, 3, 1, 0, 0, 0, 5, 19, 3};
 
 void setup() {
   DDRB = DDRB | 0x3F;
   DDRD = 0xFF;
-  Serial.begin(9600);
   pinMode(A0, INPUT);
 }
 
 void loop() {
-  velocidade = analogRead(A0);
-  if (Serial.available() > 0) {
-    // lê do buffer o dado recebido:
-    leituraSerial = Serial.readString();
-    num[0] = (leituraSerial[0]-48);
-    num[1] = (leituraSerial[1]-48);
-    num[2] = (leituraSerial[2]-48);
-    num[3] = (leituraSerial[3]-48);
-  }
-  else{
-    for(int j = 0; j < 3; j ++){
-      PORTB = enable[j] | leds_portb[num[2-j]];
-      PORTD = leds_portd[num[2-j]];
-      // for(int i =0; i < 4; i++){
-      //   digitalWrite(pinsE[i],enable[j][i]);
-      //   digitalWrite(pinsL[i],leds[j][i]);
-      // }
-      // for(int i = 4; i < 8; i++){
-      //   digitalWrite(pinsL[i],leds[j][i]);
-      // }
-      delay(1+velocidade*200/1023); 
+  for(int i = 0; i < 21; i ++){
+    for(int k =0; k < 20; k++){
+      for(int j = 0; j < 4; j ++){
+        PORTB = enable[j%4] | portb_letras[sentenca[3-j+i]];
+        PORTD = portd_letras[sentenca[3-j+i]];
+        delay(5);
+      }
     }
   }
 }
