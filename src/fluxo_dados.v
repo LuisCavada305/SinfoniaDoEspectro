@@ -11,12 +11,17 @@ module fluxo_dados (
     input zera_contador_rodada,
     input enable_contador_jogada,
     input zera_contador_jogada,
-    input memoria,
+	 input zera_timer_msg,
+	 input enable_timer_msg,
+	 input zera_contador_msg,
+	 input enable_contador_msg,
+    input enable_registrador_musica,
 	 input nivel,
     input zeraT,
     input contaT,
     input zera_timeout_buzzer,
     input conta_timeout_buzzer,
+    input [1:0] contagem_display,
     input mostraJ,
     input mostraB,
     input contaErro,
@@ -28,17 +33,19 @@ module fluxo_dados (
     input calcular,
     
     // Sinais de Condição
-    output enderecoIgualLimite, //
-    output botoesIgualMemoria,//
-    output fimL,//
-    output fimE, //
-    output tem_jogada,//
+    output enderecoIgualLimite,
+    output botoesIgualMemoria,
+    output fimL,
+    output fimE, 
+    output tem_jogada,
     output timeout,
 	output muda_nota,
+    output timeout_contador_msg,
     
     // Sinal de Saída
     output [2:0] arduino_out,
     output [7:0] pontos,
+	 output [4:0] letra_frase_inicial,
     
     // Sinais de Depuração
     output tem_botao_pressionado,
@@ -66,7 +73,11 @@ module fluxo_dados (
     wire [7:0] s_pontos; 
 	wire [7:0] s_resultado;
     wire [6:0] s_arduino_out;
+    wire [4:0] s_contador_msg;
     wire [4:0] s_endereco_msg;
+    wire [2:0] s_select_musica;
+
+    assign s_endereco_msg = s_contador_msg + 5'h03 - contagem_display;
 
     // ======================================================
     // Bloco de Contagem e Comparação da Sequência
@@ -130,25 +141,12 @@ module fluxo_dados (
     );
 
    // ROMs síncronas – memórias com a sequência esperada
-    sync_rom_16x4_1 memoria1 (
+    memoria_notas memoria_de_musicas (
       .clock (clock),
       .address (s_contagem),
-      .data_out (s_memoria1)
+      .select_musica (s_select_musica),
+      .data_out (s_memoria)
     );
-	 
-	 sync_rom_16x4_2 memoria2 (
-      .clock (clock),
-      .address (s_contagem),
-      .data_out (s_memoria2)
-    );
-    
-    // MUX para selecionar entre as duas ROMs
-    mux2x1_7 MUX_MEM (
-		 .D0(s_memoria1),
-		 .D1(s_memoria2),
-		 .SEL(memoria),
-		 .OUT(s_memoria)
-	 );
 	 
     // Comparador para verificar se a jogada registrada é igual à esperada
     comparador_85_7bits CompJog (
@@ -190,20 +188,32 @@ module fluxo_dados (
         .meio () 
     );
 
+    // Elementos para mostrar mensagem inicial
+    contador_m #(.M(100), .N(7)) contador_timeout_mensagem(
+        .clock (clock),
+        .zera_as(1'b0),
+        .zera_s (zera_timer_msg),
+        .conta (enable_timer_msg),
+        .Q (),
+        .fim (timeout_contador_msg),
+        .meio () 
+    );
+
     contador_m #(.M(21), .N(5)) contador_mensagem(
         .clock (clock),
         .zera_as(1'b0),
         .zera_s (zera_contador_msg),
         .conta (enable_contador_msg),
-        .Q (s_endereco_msg),
+        .Q (s_contador_msg),
         .fim (),
         .meio () 
     );
 
     memoria_frase memoria_da_frase_inicial(
         .address(s_endereco_msg),
-        .data_out()
-    )
+        .data_out(letra_frase_inicial)
+    );
+    // Fim elementos mostrar mensagem inicial
 
 	// MUX para seleção de exibição: mostra a memória ou zero conforme mostraJ
 	mux2x1_7 MUX (
@@ -263,6 +273,14 @@ module fluxo_dados (
         .enable (activateArduino),
 		.saida  (arduino_out)
     );
+
+    // Decodificador para selecao da musica
+    reg_decoder_8x3 Decodificador_musica(
+        .enable (enable_registrador_musica),
+        .data_in ({1'b0,botoes}),
+        .data_out (s_select_musica)
+    );
+
     // saidas de depuracao
     assign db_limite = s_limite;
     assign tem_botao_pressionado = s_sinal;
@@ -293,7 +311,7 @@ module registrador_7 (
 endmodule
 
 // ======================================================
-// MÓDULO: registrador_7_init
+// MÓDULO: registrador_8_init
 // ======================================================
 // Ao receber clear, carrega 100; em enable, atualiza com D.
 module registrador_8_init (
@@ -313,35 +331,7 @@ endmodule
 
 
 
-module sync_rom_16x4_1 (clock, address, data_out);
-    input            clock;
-    input      [3:0] address;
-    output reg [6:0] data_out;
-
-    always @ (posedge clock)
-    begin
-        case (address)
-            4'b0000: data_out = 7'b0000001;
-            4'b0001: data_out = 7'b0000010;
-            4'b0010: data_out = 7'b0000100;
-            4'b0011: data_out = 7'b0001000;
-            4'b0100: data_out = 7'b0010000;
-            4'b0101: data_out = 7'b0100000;
-            4'b0110: data_out = 7'b1000000;
-            4'b0111: data_out = 7'b0100000;
-            4'b1000: data_out = 7'b0010000;
-            4'b1001: data_out = 7'b0001000;
-            4'b1010: data_out = 7'b0000100;
-            4'b1011: data_out = 7'b0000010;
-            4'b1100: data_out = 7'b0000001;
-            4'b1101: data_out = 7'b0000010;
-            4'b1110: data_out = 7'b0000100;
-            4'b1111: data_out = 7'b0001000;
-        endcase
-    end
-endmodule
-
-module sync_rom_16x4_2 (clock, address, data_out);
+module sync_rom (clock, address, data_out);
     input            clock;
     input      [3:0] address;
     output reg [6:0] data_out;

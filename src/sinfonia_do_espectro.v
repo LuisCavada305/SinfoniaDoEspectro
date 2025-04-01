@@ -2,7 +2,6 @@ module sinfonia_do_espectro (
     input         clock,
     input         reset,
     input         jogar,
-    input         memoria,
     input         nivel,
     input  [6:0]  botoes,
     input         treinamento,
@@ -37,6 +36,7 @@ module sinfonia_do_espectro (
     wire [3:0] s_limite;    // Contador de limite (4 bits)
     wire [6:0] s_memoria;
     wire [4:0] s_estado;
+	 wire [4:0] s_letra_frase_inicial;
     // Agora s_pontos é de 8 bits para representar a pontuação de 0 a 255 (inicialmente 100)
     wire [7:0] s_pontos;
     wire s_enderecoIgualLimite;
@@ -55,6 +55,14 @@ module sinfonia_do_espectro (
     wire s_sel_memoria_arduino, s_activateArdunino;
 	wire s_enderecoIgualMemoria;
     wire s_calcular;
+    wire s_enable_registrador_musica;
+    wire s_select_mux_display;
+    wire s_zera_contador_msg;
+    wire s_enable_contador_msg;
+    wire s_zera_timer_msg;
+    wire s_enable_timer_msg;
+    wire s_timeout_contador_msg;
+    wire [1:0] s_contagem_display;
 
     // Instância do módulo de fluxo de dados
     fluxo_dados FD(
@@ -66,12 +74,18 @@ module sinfonia_do_espectro (
         .zera_contador_jogada (s_zera_contador_jogada),
         .enable_contador_rodada (s_enable_contador_rodada),
         .zera_contador_rodada (s_zera_contador_rodada),
+        .zera_contador_msg(s_zera_contador_msg),
+        .enable_contador_msg(s_enable_contador_msg),
+        .zera_timer_msg(s_zera_timer_msg),
+        .enable_timer_msg(s_enable_timer_msg),
+        .timeout_contador_msg(s_timeout_contador_msg),
+        .contagem_display(s_contagem_display),
+        .enable_registrador_musica(s_enable_registrador_musica),
         .enderecoIgualLimite (s_enderecoIgualMemoria),
         .botoesIgualMemoria (s_botoesIgualMemoria),
         .fimL (s_fimL),
         .fimE ( ),
         .calcular(s_calcular),
-        .memoria (memoria),
         .nivel (nivel),
         .zeraT(s_zeraT),
         .contaT(s_contaT),
@@ -93,9 +107,10 @@ module sinfonia_do_espectro (
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
         .regPontos(s_regPontos),
+		  .letra_frase_inicial(s_letra_frase_inicial),
         .sel_memoria_arduino (s_sel_memoria_arduino),
         .activateArduino (s_activateArdunino),
-		.arduino_out(arduino_out)
+		  .arduino_out(arduino_out)
     );
 
     // Instância do módulo de unidade de controle
@@ -118,6 +133,13 @@ module sinfonia_do_espectro (
         .zeraT(s_zeraT),
         .contaT(s_contaT),
         .timeout(s_timeout),
+        .enable_registrador_musica(s_enable_registrador_musica),
+        .zera_contador_msg(s_zera_contador_msg),
+        .enable_contador_msg(s_enable_contador_msg),
+        .zera_timer_msg(s_zera_timer_msg),
+        .enable_timer_msg(s_enable_timer_msg),
+        .timeout_contador_msg(s_timeout_contador_msg),
+        .select_mux_display(s_select_mux_display),
         .pronto (pronto),
         .db_estado (s_estado),
         .db_timeout(db_timeout),
@@ -133,7 +155,7 @@ module sinfonia_do_espectro (
         .contaErro(s_contaErro),
         .zeraErro(s_zeraErro),
         .regPontos(s_regPontos),
-        .treinamento(1'b0),
+        .treinamento(treinamento),
         .sel_memoria_arduino(s_sel_memoria_arduino),
         .activateArduino (s_activateArdunino)
     );
@@ -187,6 +209,9 @@ module sinfonia_do_espectro (
     conversor7seg convPontos (
         .clock		(clock),
         .numero	(s_pontos),
+        .select (s_select_mux_display),
+		  .letra		(s_letra_frase_inicial),
+        .contagem_display(s_contagem_display),
         .display 	(display)
     );
 

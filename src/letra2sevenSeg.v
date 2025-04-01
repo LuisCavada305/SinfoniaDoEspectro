@@ -1,8 +1,8 @@
-module bin2sevenSeg (bcd, display);
+module letra2sevenSeg (letra, display);
     input       [4:0]   letra;
     output reg  [7:0]   display;
 
-    always @(bcd)
+    always @(*)
         case(letra)
             5'h00     : display = 8'b00000000;
             5'h01     : display = 8'b11111001;
@@ -31,5 +31,6 @@ module bin2sevenSeg (bcd, display);
             5'h18     : display = 8'b00111000;
             5'h19     : display = 8'b01111010;
             5'h1a     : display = 8'b10110011;
+				default   : display = 8'b00000000;
         endcase
 endmodule

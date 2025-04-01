@@ -10,6 +10,7 @@ module unidade_controle (
     input      muda_nota,// sinal que indica que os LEDs já foram atualizados
     input      treinamento,
     input      tem_botao_pressionado,
+    input      timeout_contador_msg,
     output reg zeraT,     // zera temporizador T
     output reg contaT,    // conta temporizador T
     output reg zera_contador_jogada,     // zera o contador de endereços (usado na leitura da memória)
@@ -22,6 +23,8 @@ module unidade_controle (
     output reg select_mux_display,
     output reg zera_contador_msg,
     output reg enable_contador_msg,
+    output reg zera_timer_msg,
+    output reg enable_timer_msg, 
     output reg pronto,    // sinal que indica que o jogo terminou (por acerto ou timeout)
     output reg [4:0] db_estado,  // para depuração: exibe o estado atual da FSM
     output reg acertou,   // sinaliza que a rodada foi concluída sem erros
@@ -88,7 +91,7 @@ module unidade_controle (
     always @* begin
         case (Eatual)
             inicial       : Eprox = jogar ? mostrar_msg : inicial;
-            mostrar_msg   : Eprox = tem_jogada ? registra_musica : prox_letra;
+            mostrar_msg   : Eprox = tem_jogada ? registra_musica : (timeout_contador_msg ? prox_letra : mostrar_msg);
             prox_letra    : Eprox = mostrar_msg;
             registra_musica: Eprox = preparacao;
             preparacao    : Eprox = treinamento ? modo_treino : toca_nota;
@@ -164,10 +167,13 @@ module unidade_controle (
         // Ativa a saída para o Arduino
         activateArduino = (Eatual == inicial || Eatual == preparacao) ? 1'b0 : 1'b1;
         calcular = (Eatual == calc_pontos) ? 1'b1 : 1'b0;
-        zera_contador_msg = (Eatual == inicial) ? 1'b1 : 1'b0; 
+        zera_contador_msg = (Eatual == inicial || Eatual == preparacao) ? 1'b1 : 1'b0; 
         enable_contador_msg = (Eatual == prox_letra) ? 1'b1 : 1'b0;
         enable_registrador_musica = (Eatual == registra_musica) ? 1'b1 : 1'b0;
         select_mux_display = (Eatual == mostrar_msg || Eatual == espera_soltar || Eatual == toca_nota) ? 1'b1 : 1'b0;
+        zera_timer_msg = (Eatual == prox_letra) ? 1'b1 : 1'b0;
+        enable_timer_msg = (Eatual == mostrar_msg) ? 1'b1 : 1'b0;
+
         //=============================================================
         // Saída de depuração: db_estado
         //=============================================================
