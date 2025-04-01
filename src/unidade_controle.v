@@ -174,7 +174,7 @@ module unidade_controle (
         select_mux_display = (Eatual == mostrar_msg || Eatual == espera_soltar || Eatual == toca_nota) ? 1'b1 : 1'b0;
         zera_timer_msg = (Eatual == prox_letra) ? 1'b1 : 1'b0;
         enable_timer_msg = (Eatual == mostrar_msg) ? 1'b1 : 1'b0;
-        select_letra = (Eatual == espera_soltar || Eatual == toca_nota)? 1'b1 : 1'b0;
+        select_letra = (Eatual == registra ||Eatual == espera_soltar || Eatual == toca_nota)? 1'b1 : 1'b0;
 
         //=============================================================
         // Saída de depuração: db_estado
