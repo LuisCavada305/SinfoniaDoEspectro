@@ -52,6 +52,7 @@ module fluxo_dados (
     output tem_botao_pressionado,
     output [3:0] db_limite,
     output [3:0] db_contagem,
+	 output [2:0] db_data_out_sync,
     output [6:0] db_memoria,
     output [6:0] db_jogada,
     output [6:0] leds
@@ -96,7 +97,7 @@ module fluxo_dados (
       .enp  ( enable_contador_rodada ),
       .D    ( 4'b0 ),
       .Q    ( s_limite ),
-      .rco  (s_fim)
+      .rco  (fimL)
     );
 
     // Comparador para verificar se o limite (s_limite) atingiu o nível esperado
@@ -108,7 +109,7 @@ module fluxo_dados (
       .AEBi( 1'b1 ),
       .ALBo(  ),
       .AGBo(  ),
-      .AEBo( fimL )
+      .AEBo( s_fim )
     );
 
     // Contador para endereçamento (endereço na ROM)
@@ -282,10 +283,17 @@ module fluxo_dados (
     reg_decoder_8x3 Decodificador_musica(
         .enable (enable_registrador_musica),
         .data_in ({1'b0,botoes}),
-        .data_out_sync (s_nota_pressionada),
-        .data_out_async (s_select_musica)
+        .data_out_sync (),
+        .data_out_async (s_nota_pressionada)
     );
-
+	 
+	 registrador_3 Reg_Musica(
+		  .clock (clock),
+		  .clear (1'b0),
+		  .enable(enable_registrador_musica),
+		  .D (s_nota_pressionada),
+		  .Q (s_select_musica)
+	 );
     notas2letras decodificador_de_notas(
         .nota(s_nota_pressionada),
         .contagem_display(contagem_display),
@@ -305,6 +313,7 @@ module fluxo_dados (
     assign db_contagem = s_contagem;
     assign db_memoria = s_memoria;
     assign db_jogada = s_jogada;
+	 assign db_data_out_sync = s_select_musica;
  endmodule
  
 module registrador_7 (
@@ -316,6 +325,27 @@ module registrador_7 (
 );
 
     reg [6:0] IQ;
+
+    always @(posedge clock or posedge clear) begin
+        if (clear)
+            IQ <= 0;
+        else if (enable)
+            IQ <= D;
+    end
+
+    assign Q = IQ;
+
+endmodule
+
+module registrador_3 (
+    input        clock,
+    input        clear,
+    input        enable,
+    input  [2:0] D,
+    output [2:0] Q
+);
+
+    reg [2:0] IQ;
 
     always @(posedge clock or posedge clear) begin
         if (clear)
