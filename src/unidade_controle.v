@@ -30,7 +30,6 @@ module unidade_controle (
     output reg [4:0] db_estado,  // para depuração: exibe o estado atual da FSM
     output reg acertou,   // sinaliza que a rodada foi concluída sem erros
     output reg serrou,    // sinaliza que houve erro na jogada
-    output reg db_timeout,// depuração: indica timeout
     output reg mostraJ,   // controla a exibição dos LEDs (modo “jogada”)
     output reg mostraB,   // controla a exibição dos botões (modo “botão”)
     output reg zera_timeout_buzzer,    // zera temporizador T2 (para atualização dos LEDs)
@@ -42,6 +41,7 @@ module unidade_controle (
     output reg regPontos,  // atualiza o registrador de pontos com o novo valor parcial
     output reg sel_memoria_arduino,
     output reg activateArduino,
+    output reg zera_contador_display,
     output reg calcular
 );
 
@@ -63,7 +63,6 @@ module unidade_controle (
     parameter prox_rodada    = 5'b00010; // 2
     parameter errou          = 5'b01110; // E
     parameter fim_acertou    = 5'b01010; // A
-    parameter fim_timeout    = 5'b01101; // D
     parameter calc_pontos    = 5'b10000; // 10
     parameter salva_pontos   = 5'b10001; // 11
     parameter modo_treino    = 5'b10110; // 16
@@ -108,8 +107,7 @@ module unidade_controle (
             fim_rodada    : Eprox = muda_nota ? calc_pontos : fim_rodada;
             prox_rodada   : Eprox = toca_nota;
             errou         : Eprox = toca_nota;
-            fim_acertou   : Eprox = jogar ? preparacao : fim_acertou;
-            fim_timeout   : Eprox = jogar ? preparacao : fim_timeout;
+            fim_acertou   : Eprox = jogar ? mostrar_msg : fim_acertou;
             // Fase de cálculo dos pontos
             calc_pontos   : Eprox = salva_pontos;      // Espera um ciclo para estabilizar os valores
             salva_pontos  : Eprox = fimL ? fim_acertou : prox_rodada;  // Se ContLmt atingiu fim, vai para fim_acertou; caso contrário, avança para próxima posição
@@ -135,7 +133,7 @@ module unidade_controle (
         // Incrementa o contador de limite
         enable_contador_rodada    = (Eatual == prox_rodada) ? 1'b1 : 1'b0;
         // O jogo está pronto (terminado) quando chega em fim_acertou ou fim_timeout
-        pronto    = (Eatual == fim_acertou || Eatual == fim_timeout) ? 1'b1 : 1'b0;
+        pronto    = (Eatual == fim_acertou ) ? 1'b1 : 1'b0;
         // Acertou se terminou sem erros
         acertou   = (Eatual == fim_acertou) ? 1'b1 : 1'b0;
         // Sinaliza erro na jogada
@@ -144,8 +142,6 @@ module unidade_controle (
         zeraT     = (Eatual == preparacao || Eatual == proximo || Eatual == prox_rodada) ? 1'b1 : 1'b0;
         // Temporizador T atua na espera de jogada
         contaT    = (Eatual == espera_jogada) ? 1'b1 : 1'b0;
-        // Depuração: timeout ativo em fim_timeout
-        db_timeout = (Eatual == fim_timeout) ? 1'b1 : 1'b0;
         // Zera temporizador T2
         zera_timeout_buzzer    = (Eatual == preparacao || Eatual == prox_rodada || Eatual == comparacao || Eatual == errou) ? 1'b1 : 1'b0;
         // Conta temporizador T2
@@ -160,7 +156,7 @@ module unidade_controle (
         zeraErro  = (Eatual == preparacao || Eatual == prox_rodada) ? 1'b1 : 1'b0;
         // Incrementa o contador de erros
         contaErro = (Eatual == errou) ? 1'b1 : 1'b0;
-        zeraPontos = (Eatual == inicial ||Eatual == preparacao) ? 1'b1 : 1'b0;
+        zeraPontos = (Eatual == inicial ||Eatual == preparacao || Eatual == mostrar_msg) ? 1'b1 : 1'b0;
         // Atualiza o registrador de pontos (RegPontos) somente em salva_pontos
         regPontos  = (Eatual == salva_pontos) ? 1'b1 : 1'b0;
         // Seleciona a saída que vai para o arduino
@@ -172,9 +168,10 @@ module unidade_controle (
         enable_contador_msg = (Eatual == prox_letra) ? 1'b1 : 1'b0;
         enable_registrador_musica = (Eatual == registra_musica) ? 1'b1 : 1'b0;
         select_mux_display = (Eatual == mostrar_msg || Eatual == espera_soltar || Eatual == toca_nota) ? 1'b1 : 1'b0;
-        zera_timer_msg = (Eatual == prox_letra) ? 1'b1 : 1'b0;
+        zera_timer_msg = (Eatual == prox_letra || Eatual == inicial) ? 1'b1 : 1'b0;
         enable_timer_msg = (Eatual == mostrar_msg) ? 1'b1 : 1'b0;
         select_letra = (Eatual == registra ||Eatual == espera_soltar || Eatual == toca_nota)? 1'b1 : 1'b0;
+        zera_contador_display = (Eatual == inicial)? 1'b1 : 1'b0;
 
         //=============================================================
         // Saída de depuração: db_estado
@@ -195,7 +192,6 @@ module unidade_controle (
             prox_rodada  : db_estado = 5'b00010; // 2
             errou        : db_estado = 5'b01110; // E
             fim_acertou  : db_estado = 5'b01010; // A
-            fim_timeout  : db_estado = 5'b01101; // D
             calc_pontos  : db_estado = 5'b10000; // 10
             salva_pontos : db_estado = 5'b10001; // 11
             modo_treino    : db_estado = 5'b10110; // 16

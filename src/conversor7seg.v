@@ -1,5 +1,6 @@
-module conversor7seg(select, clock, numero, letra, contagem_display,db_ones, db_tens, db_hundreds, display);  
+module conversor7seg(select, zera_contador_display, clock, numero, letra, contagem_display,db_ones, db_tens, db_hundreds, display);  
     input               clock;
+    input               zera_contador_display;
     input               select;
     input       [7:0]   numero;
     input       [4:0]   letra;
@@ -50,10 +51,10 @@ module conversor7seg(select, clock, numero, letra, contagem_display,db_ones, db_
     //assign display[7:0] = s_display;
 	
     // Conta ate 3
-    contador_m  #(.M(3), .N(2)) contador_ordem(
+    contador_m  #(.M(4), .N(2)) contador_ordem(
         .clock (clock),
         .zera_as(1'b0),
-        .zera_s (1'b0),
+        .zera_s (zera_contador_display),
         .conta (1'b1),
         .Q (s_contagem),
         .fim (),

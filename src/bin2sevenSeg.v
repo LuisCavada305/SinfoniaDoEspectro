@@ -14,6 +14,12 @@ module bin2sevenSeg (bcd, display);
             4'h7    : display = 8'b10101000;
             4'h8    : display = 8'b11111011;
             4'h9	: display = 8'b11111010;
-			default : display = 8'b11111111;
+            4'ha    : display = 8'b00000000;
+            4'hb    : display = 8'b00000000;
+            4'hc    : display = 8'b00000000;
+            4'hd    : display = 8'b00000000;
+            4'he    : display = 8'b00000000;
+            4'hf    : display = 8'b00000000;
+			default : display = 8'b00000000;
         endcase
 endmodule

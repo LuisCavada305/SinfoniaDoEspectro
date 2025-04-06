@@ -19,7 +19,6 @@ module sinfonia_do_espectro (
     output        db_jogar,
 	output        db_tem_botao_pressionado,
     output        db_botoesIgualMemoria,
-    output        db_timeout,
     output [6:0]  db_jogada,
     output [6:0]  db_memoria,
     output [6:0]  db_contagem,
@@ -32,7 +31,6 @@ module sinfonia_do_espectro (
     output      [6:0]   db_tens,
     output      [6:0]   db_hundreds,
 	 output db_reset,
-    output        db_timeout,
     output        db_clock,
     output [6:0]  leds,
     // Saída dos pontos – agora os pontos são exibidos em 3 displays de 7 segmentos
@@ -79,6 +77,7 @@ module sinfonia_do_espectro (
 	 wire [3:0] s_ones;
 	 wire [3:0] s_ten;
 	 wire [3:0] s_hundreds;
+    wire s_zera_contador_display
     
 	 assign db_reset = reset;
 
@@ -105,7 +104,6 @@ module sinfonia_do_espectro (
         .fimL (s_fimL),
         .fimE ( ),
         .calcular(s_calcular),
-        .nivel (1'b1),
         .zeraT(s_zeraT),
         .contaT(s_contaT),
         .timeout(s_timeout),
@@ -163,7 +161,6 @@ module sinfonia_do_espectro (
         .select_letra(s_select_letra),
         .pronto (pronto),
         .db_estado (s_estado),
-        .db_timeout(db_timeout),
         .acertou (acertou),
         .serrou (errou),
         .zera_timeout_buzzer(s_zera_timeout_buzzer),
@@ -178,7 +175,8 @@ module sinfonia_do_espectro (
         .regPontos(s_regPontos),
         .treinamento(treinamento),
         .sel_memoria_arduino(s_sel_memoria_arduino),
-        .activateArduino (s_activateArdunino)
+        .activateArduino (s_activateArdunino),
+        .zera_contador_display (s_zera_contador_display)
     );
 
     // Instâncias de módulos de depuração e exibição
@@ -239,6 +237,7 @@ module sinfonia_do_espectro (
     
     conversor7seg convPontos (
         .clock		(clock),
+        .zera_contador_display (s_zera_contador_display),
         .numero	(s_pontos),
         .select (s_select_mux_display),
 		  .letra		(s_letra),

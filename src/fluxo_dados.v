@@ -17,7 +17,6 @@ module fluxo_dados (
 	 input enable_contador_msg,
     input enable_registrador_musica,
     input select_letra,
-	 input nivel,
     input zeraT,
     input contaT,
     input zera_timeout_buzzer,
@@ -68,7 +67,6 @@ module fluxo_dados (
     wire [6:0] s_memoria2;
     wire [6:0] s_mux;
     wire s_fim;
-    wire [3:0] s_nivel = {nivel, 3'b111};
     wire [3:0] s_erros;
 	wire [7:0] s_erro_estendido = {4'h0,s_erros};
     assign s_sinal = botoes[0] | botoes[1] | botoes[2] | botoes[3] | botoes[4] | botoes[5] | botoes[6];
@@ -79,6 +77,7 @@ module fluxo_dados (
     wire [4:0] s_endereco_msg;
     wire [2:0] s_select_musica;
 	 wire [2:0] s_nota_pressionada;
+    wire [2:0] s_musica_pressionada;
     wire [4:0] s_letra_da_nota;
     wire [4:0] s_letra_frase_inicial;
 
@@ -100,17 +99,6 @@ module fluxo_dados (
       .rco  (fimL)
     );
 
-    // Comparador para verificar se o limite (s_limite) atingiu o nível esperado
-	  comparador_85 CompFim (
-      .A   ( s_limite ),
-      .B   ( s_nivel ),
-      .ALBi( 1'b0 ),
-      .AGBi( 1'b0 ),
-      .AEBi( 1'b1 ),
-      .ALBo(  ),
-      .AGBo(  ),
-      .AEBo( s_fim )
-    );
 
     // Contador para endereçamento (endereço na ROM)
     contador_163 ContEnd (
@@ -280,20 +268,26 @@ module fluxo_dados (
     );
 
     // Decodificador para selecao da musica
-    reg_decoder_8x3 Decodificador_musica(
+    decoder_8x3 Decodificador_musica(
         .enable (enable_registrador_musica),
         .data_in ({1'b0,botoes}),
-        .data_out_sync (),
-        .data_out_async (s_nota_pressionada)
+        .data_out (s_musica_pressionada)
+    );
+
+    // Decodificador para mostrar nota no display
+    decoder_8x3 Decodificador_notas(
+        .data_in ({1'b0,s_arduino_out}),
+        .data_out (s_nota_pressionada)
     );
 	 
 	 registrador_3 Reg_Musica(
 		  .clock (clock),
 		  .clear (1'b0),
 		  .enable(enable_registrador_musica),
-		  .D (s_nota_pressionada),
+		  .D (s_musica_pressionada),
 		  .Q (s_select_musica)
 	 );
+     
     notas2letras decodificador_de_notas(
         .nota(s_nota_pressionada),
         .contagem_display(contagem_display),
