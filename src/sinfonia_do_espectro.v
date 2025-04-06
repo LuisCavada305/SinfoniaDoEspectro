@@ -3,30 +3,34 @@ module sinfonia_do_espectro (
     input         reset,
     input         jogar,
     input         nivel,
-    input  [6:0]  botoes,
     input         treinamento,
+    input  [6:0]  botoes,
+    
+    // Saidas
     output        pronto,
     output        acertou,
     output        errou,
-    output [2:0] arduino_out,
-    // Depuração
-    output        db_jogar,
-	 output        db_tem_botao_pressionado,
-    output        db_botoesIgualMemoria,
-    output [6:0]  db_contagem,
-    output [6:0]  db_memoria,
-    output [6:0]  db_limite,
-    output [6:0]  db_jogada,
-    output [6:0]  db_estado0,
-    output [6:0]  db_estado1,
-    output        db_timeout,
-    output        db_clock,
+    output [2:0]  arduino_out,
     output [6:0]  leds,
+    output [11:0] display,
+    
+    // Depuração
+    output        db_clock,
+    output        db_jogar,
+	output        db_tem_botao_pressionado,
+    output        db_botoesIgualMemoria,
+    output        db_timeout,
+    output [6:0]  db_jogada,
+    output [6:0]  db_memoria,
+    output [6:0]  db_contagem,
+    output [6:0]  db_limite,
+    output [6:0]  db_estado0,
+    output [6:0]  db_estado1
+    
     // Saída dos pontos – agora os pontos são exibidos em 3 displays de 7 segmentos
     // output [6:0]  disp_hund, // display das centenas
     // output [6:0]  disp_tens, // display das dezenas
     // output [6:0]  disp_ones  // display das unidades
-    output [11:0] display
 );
 
     // Sinais internos
