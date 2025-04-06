@@ -23,10 +23,18 @@ module sinfonia_do_espectro (
     output [6:0]  db_jogada,
     output [6:0]  db_memoria,
     output [6:0]  db_contagem,
+	 output [2:0]  db_data_out_sync,
+    output [6:0]  db_memoria,
     output [6:0]  db_limite,
     output [6:0]  db_estado0,
-    output [6:0]  db_estado1
-    
+    output [6:0]  db_estado1,
+	 output      [6:0]   db_ones,
+    output      [6:0]   db_tens,
+    output      [6:0]   db_hundreds,
+	 output db_reset,
+    output        db_timeout,
+    output        db_clock,
+    output [6:0]  leds,
     // Saída dos pontos – agora os pontos são exibidos em 3 displays de 7 segmentos
     // output [6:0]  disp_hund, // display das centenas
     // output [6:0]  disp_tens, // display das dezenas
@@ -68,7 +76,11 @@ module sinfonia_do_espectro (
     wire s_timeout_contador_msg;
     wire [1:0] s_contagem_display;
     wire s_select_letra;
+	 wire [3:0] s_ones;
+	 wire [3:0] s_ten;
+	 wire [3:0] s_hundreds;
     
+	 assign db_reset = reset;
 
     // Instância do módulo de fluxo de dados
     fluxo_dados FD(
@@ -93,7 +105,7 @@ module sinfonia_do_espectro (
         .fimL (s_fimL),
         .fimE ( ),
         .calcular(s_calcular),
-        .nivel (nivel),
+        .nivel (1'b1),
         .zeraT(s_zeraT),
         .contaT(s_contaT),
         .timeout(s_timeout),
@@ -101,6 +113,7 @@ module sinfonia_do_espectro (
         .db_limite (s_limite),
         .tem_botao_pressionado (s_tem_botao_pressionado),
         .db_contagem (s_contagem),
+		  .db_data_out_sync (db_data_out_sync),
         .db_jogada (s_jogada),
         .db_memoria (s_memoria),
         .leds(leds),
@@ -170,8 +183,18 @@ module sinfonia_do_espectro (
 
     // Instâncias de módulos de depuração e exibição
     hexa7seg HEX0(
-        .hexa (s_contagem),
-        .display (db_contagem)
+        .hexa (s_ones),
+        .display (db_ones)
+    );
+	 
+	 hexa7seg HEX1(
+        .hexa (s_tens),
+        .display (db_tens)
+    );
+	 
+	 hexa7seg HEX2(
+        .hexa (s_hundreds),
+        .display (db_hundreds)
     );
 
     hexa7seg HEX4(
@@ -220,6 +243,9 @@ module sinfonia_do_espectro (
         .select (s_select_mux_display),
 		  .letra		(s_letra),
         .contagem_display(s_contagem_display),
+		  .db_ones(s_ones),
+		  .db_tens(s_tens),
+		  .db_hundreds(s_hundreds),
         .display 	(display)
     );
 

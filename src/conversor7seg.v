@@ -1,9 +1,12 @@
-module conversor7seg(select, clock, numero, letra, contagem_display, display);  
+module conversor7seg(select, clock, numero, letra, contagem_display,db_ones, db_tens, db_hundreds, display);  
     input               clock;
     input               select;
     input       [7:0]   numero;
     input       [4:0]   letra;
     output      [1:0]   contagem_display;
+	 output      [3:0]   db_ones;
+    output      [3:0]   db_tens;
+    output      [3:0]   db_hundreds;
     output	   [11:0]  display;
 
     //reg     [3:0] enable;
@@ -17,6 +20,9 @@ module conversor7seg(select, clock, numero, letra, contagem_display, display);
     wire    [7:0] s_display_letra;
 
     assign contagem_display = s_contagem;
+	 assign db_ones = ones;
+	 assign db_tens = tens;
+	 assign db_hundreds = hundreds;
     
     //always @(s_contagem) begin
     //    case (s_contagem)
