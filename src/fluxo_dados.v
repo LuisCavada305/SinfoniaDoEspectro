@@ -38,7 +38,6 @@ module fluxo_dados (
     output fimL,
     output fimE, 
     output tem_jogada,
-    output timeout,
 	output muda_nota,
     output timeout_contador_msg,
     
@@ -160,17 +159,6 @@ module fluxo_dados (
         .pulso(tem_jogada)
     );
 
-    // Contadores para timeout e atualização dos LEDs
-    contador_m #(.M(60000), .N(13)) contador_5000(
-        .clock (clock),
-        .zera_as(1'b0),
-        .zera_s (zeraT),
-        .conta (contaT),
-        .Q (),
-        .fim (timeout),
-        .meio () 
-    );
-
 	contador_m #(.M(500), .N(13)) contador_500(
         .clock (clock),
         .zera_as(1'b0),
@@ -269,7 +257,6 @@ module fluxo_dados (
 
     // Decodificador para selecao da musica
     decoder_8x3 Decodificador_musica(
-        .enable (enable_registrador_musica),
         .data_in ({1'b0,botoes}),
         .data_out (s_musica_pressionada)
     );

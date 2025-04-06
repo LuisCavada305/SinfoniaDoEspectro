@@ -2,7 +2,6 @@ module sinfonia_do_espectro (
     input         clock,
     input         reset,
     input         jogar,
-    input         nivel,
     input         treinamento,
     input  [6:0]  botoes,
     
@@ -16,23 +15,22 @@ module sinfonia_do_espectro (
     
     // Depuração
     output        db_clock,
+	 output        db_reset,
     output        db_jogar,
-	output        db_tem_botao_pressionado,
+	 output        db_tem_botao_pressionado,
     output        db_botoesIgualMemoria,
     output [6:0]  db_jogada,
     output [6:0]  db_memoria,
     output [6:0]  db_contagem,
 	 output [2:0]  db_data_out_sync,
-    output [6:0]  db_memoria,
     output [6:0]  db_limite,
     output [6:0]  db_estado0,
     output [6:0]  db_estado1,
-	 output      [6:0]   db_ones,
-    output      [6:0]   db_tens,
-    output      [6:0]   db_hundreds,
-	 output db_reset,
-    output        db_clock,
-    output [6:0]  leds,
+	 output [6:0]  db_ones,
+    output [6:0]  db_tens,
+    output [6:0]  db_hundreds
+	 
+
     // Saída dos pontos – agora os pontos são exibidos em 3 displays de 7 segmentos
     // output [6:0]  disp_hund, // display das centenas
     // output [6:0]  disp_tens, // display das dezenas
@@ -56,14 +54,13 @@ module sinfonia_do_espectro (
     wire s_jogar;
     wire s_zeraT;
     wire s_contaT;
-    wire s_timeout;
     wire s_zera_timeout_buzzer;
     wire s_conta_timeout_buzzer;
     wire s_muda_nota;
     wire s_mostraJ, s_mostraB, s_mostraPontos, s_zeraPontos;
     wire s_contaErro, s_zeraErro, s_regPontos;
     wire s_sel_memoria_arduino, s_activateArdunino;
-	wire s_enderecoIgualMemoria;
+	 wire s_enderecoIgualMemoria;
     wire s_calcular;
     wire s_enable_registrador_musica;
     wire s_select_mux_display;
@@ -76,8 +73,8 @@ module sinfonia_do_espectro (
     wire s_select_letra;
 	 wire [3:0] s_ones;
 	 wire [3:0] s_ten;
-	 wire [3:0] s_hundreds;
-    wire s_zera_contador_display
+	 wire [3:0] s_hundreds	;
+    wire s_zera_contador_display;
     
 	 assign db_reset = reset;
 
@@ -106,7 +103,6 @@ module sinfonia_do_espectro (
         .calcular(s_calcular),
         .zeraT(s_zeraT),
         .contaT(s_contaT),
-        .timeout(s_timeout),
         .tem_jogada (s_tem_jogada),
         .db_limite (s_limite),
         .tem_botao_pressionado (s_tem_botao_pressionado),
@@ -150,7 +146,6 @@ module sinfonia_do_espectro (
         .enable_registrador_botoes (s_enable_registrador_botoes),
         .zeraT(s_zeraT),
         .contaT(s_contaT),
-        .timeout(s_timeout),
         .enable_registrador_musica(s_enable_registrador_musica),
         .zera_contador_msg(s_zera_contador_msg),
         .enable_contador_msg(s_enable_contador_msg),
@@ -223,17 +218,9 @@ module sinfonia_do_espectro (
     assign db_botoesIgualMemoria = s_botoesIgualMemoria;
 	 assign db_tem_botao_pressionado = s_tem_botao_pressionado;
     assign db_clock = clock;
-	assign db_memoria = s_memoria;
-	assign db_jogada = s_jogada;
+	 assign db_memoria = s_memoria;
+	 assign db_jogada = s_jogada;
 
-    // Instancia o novo módulo display_pontos para exibir os pontos em 3 displays de 7 segmentos.
-    // display_pontos DP (
-    //     .pontos(s_pontos),
-    //     .enable(s_mostraPontos),
-    //     .disp_hundreds(disp_hund),
-    //     .disp_tens(disp_tens),
-    //     .disp_ones(disp_ones)
-    // );
     
     conversor7seg convPontos (
         .clock		(clock),

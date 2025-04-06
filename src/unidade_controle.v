@@ -6,7 +6,6 @@ module unidade_controle (
     input      botoesIgualMemoria,  // resultado da comparação entre a jogada e a sequência armazenada
     input      enderecoIgualLimite, // indica se o endereço (contagem) atingiu o limite esperado
     input      tem_jogada,   // sinal que indica que a jogada foi efetivada (detectada a borda)
-    input      timeout,  // sinal de tempo esgotado
     input      muda_nota,// sinal que indica que os LEDs já foram atualizados
     input      treinamento,
     input      tem_botao_pressionado,
