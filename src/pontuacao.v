@@ -3,10 +3,10 @@ module pontuacao();
     // Lógica de Cálculo de Pontos
     // ======================================================
     // Registrador de pontos – ao ser "limpo" (clear) carrega o valor inicial de 100.
-    registrador_7_init RegPontos (
+    registrador_7_init enable_registrador_pontos (
       .clock  ( clock ),      
-      .clear  ( zeraPontos ),      
-      .enable ( regPontos ),     
+      .clear  ( zera_registrador_pontos ),      
+      .enable ( enable_registrador_pontos ),     
       .D      ( s_resultado ), 
       .Q      ( s_pontos )
     );

@@ -1,5 +1,5 @@
 module calculadora_pontos (
-    input       calcular,
+    input       calcular_pontos,
     input       [3:0] rodada,
     input       [7:0] erros,
     input       [7:0] pontos_in,
@@ -12,12 +12,12 @@ module calculadora_pontos (
 	 assign pontos_rodada = pontos_rodada_base - erros;
 
     memoria_pontos mem_potuacao(
-//        .clock      (calcular),
+//        .clock      (calcular_pontos),
         .address    (rodada),
         .data_out   (pontos_rodada_base)
     );
 
-    always @(calcular) begin
+    always @(calcular_pontos) begin
         if (pontos_rodada <= 0)
             pontos_out <= pontos_in;
         else

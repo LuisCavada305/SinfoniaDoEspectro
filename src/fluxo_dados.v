@@ -5,47 +5,44 @@ module fluxo_dados (
     input [6:0] botoes,
 
     // Sinais de Controle
-    input       activateArduino,
-    input       calcular,
-    input       contaErro,
+    input       activate_arduino,
+    input       calcular_pontos,
     input [1:0] contagem_display,
-    input       conta_timeout_buzzer,
+    input       enable_contador_erro,
     input       enable_contador_jogada,
     input       enable_contador_msg,
     input       enable_contador_rodada,
     input       enable_registrador_botoes,
     input       enable_registrador_musica,
+    input       enable_registrador_pontos,
+    input       enable_timer_buzzer,
     input       enable_timer_msg,
-    input       mostraJ,
-    input       mostraB,
-    input       regPontos,
-    input       sel_memoria_arduino,
-    input       select_letra,
+    input       select_mux_arduino,
+    input       select_mux_letra,
+    input       zera_contador_erro,
     input       zera_contador_jogada,
     input       zera_contador_msg,
     input       zera_contador_rodada,
     input       zera_registrador_botoes,
+    input       zera_registrador_pontos,
+    input       zera_timer_buzzer,
     input       zera_timer_msg,
-    input       zera_timeout_buzzer,
-    input       zeraErro,
-    input       zeraPontos,
 
     // Sinais de Condição
     output          botoesIgualMemoria,
     output          enderecoIgualLimite,
     output          fimL,
-    output          muda_nota,
+    output          tem_botao_pressionado,
     output          tem_jogada,
+    output          timeout_contador_buzzer,
     output          timeout_contador_msg,
 
-    // Sinais de Saída
+    // Sinais de Saida
     output [2:0]    arduino_out,
     output [4:0]    letra,
-    output [6:0]    leds,
     output [7:0]    pontos,
 
     // Sinais de Depuração
-    output          tem_botao_pressionado,
     output [2:0]    db_data_out_sync,
     output [3:0]    db_contagem,
     output [3:0]    db_limite,
@@ -60,7 +57,6 @@ module fluxo_dados (
     wire [4:0]  s_endereco_msg;
     wire [3:0]  s_erros;
     wire [7:0]  s_erro_estendido = {4'h0,s_erros};
-    wire        s_fim;
     wire [6:0]  s_jogada;
     wire [4:0]  s_letra_da_nota;
     wire [4:0]  s_letra_frase_inicial;
@@ -153,13 +149,13 @@ module fluxo_dados (
         .pulso( tem_jogada              )
     );
 
-	contador_m #(.M(500), .N(13)) contador_500(
-        .clock      ( clock                 ),
-        .zera_as    ( 1'b0                  ),
-        .zera_s     ( zera_timeout_buzzer   ),
-        .conta      ( conta_timeout_buzzer  ),
+	contador_m #(.M(500), .N(13)) contador_buzzer(
+        .clock      ( clock                     ),
+        .zera_as    ( 1'b0                      ),
+        .zera_s     ( zera_timer_buzzer         ),
+        .conta      ( enable_timer_buzzer       ),
         .Q          ( ),
-        .fim        ( muda_nota             ),
+        .fim        ( timeout_contador_buzzer   ),
         .meio       ( ) 
     );
 
@@ -190,65 +186,49 @@ module fluxo_dados (
     );
 
     // Fim elementos mostrar mensagem inicial
-
-	// MUX para seleção de exibição: mostra a memória ou zero conforme mostraJ
-	mux2x1_7 MUX (
-        .D0 ( 7'b0000000),
-        .D1 ( s_memoria ),
-        .SEL( mostraJ   ),
-        .OUT( s_mux     )
-	 );
-	 
-    // Segundo MUX: seleciona entre o resultado do MUX anterior e os botões para dirigir os LEDs
-    mux2x1_7 MUX2 (
-        .D0 ( s_mux     ),
-        .D1 ( botoes    ),
-        .SEL( mostraB   ),
-        .OUT( leds      )
-	);
 	 
     // Contador de erros (acumula os erros durante a rodada)
     contador_163 ContErro (
-        .clock( clock       ),
-        .clr  ( ~zeraErro   ),
-        .ld   ( 1'b1        ),
-        .ent  ( 1'b1        ),
-        .enp  ( contaErro   ),
-        .D    ( 4'b0        ),
-        .Q    ( s_erros     ),
+        .clock( clock               ),
+        .clr  ( ~zera_contador_erro ),
+        .ld   ( 1'b1                ),
+        .ent  ( 1'b1                ),
+        .enp  ( enable_contador_erro),
+        .D    ( 4'b0                ),
+        .Q    ( s_erros             ),
         .rco  ( )
     );
 
 
     //Calculadora de Pontos
     calculadora_pontos calculadora_de_pontos(
-        .calcular   ( calcular          ),
-        .rodada     ( s_contagem        ),
-        .erros      ( s_erro_estendido  ),
-        .pontos_in  ( pontos            ),
-        .pontos_out ( s_resultado       )
+        .calcular_pontos    ( calcular_pontos   ),
+        .rodada             ( s_contagem        ),
+        .erros              ( s_erro_estendido  ),
+        .pontos_in          ( pontos            ),
+        .pontos_out         ( s_resultado       )
     );
 
     registrador_8_init registrador_Pontos(
-        .enable ( regPontos     ),
-        .clock  ( clock         ),
-        .clear  ( zeraPontos    ),
-        .D      ( s_resultado   ),
-        .Q      ( pontos        )
+        .enable ( enable_registrador_pontos ),
+        .clock  ( clock                     ),
+        .clear  ( zera_registrador_pontos   ),
+        .D      ( s_resultado               ),
+        .Q      ( pontos                    )
     );
 
     // Conexão com o Arduino
     mux2x1_7 Arduino_sound (
         .D0 ( botoes                ),
         .D1 ( s_memoria             ),
-        .SEL( sel_memoria_arduino   ),
+        .SEL( select_mux_arduino    ),
         .OUT( s_arduino_out         )
     );
 
     arduino_connection Arduino_Play(
-        .entrada    (s_arduino_out  ),
-        .enable     (activateArduino),
-        .saida      (arduino_out    )
+        .entrada    (s_arduino_out      ),
+        .enable     (activate_arduino   ),
+        .saida      (arduino_out        )
     );
 
     // Decodificador para selecao da musica
@@ -280,7 +260,7 @@ module fluxo_dados (
     mux_2x1_5bits mux_letras(
         .D0 ( s_letra_frase_inicial ),
         .D1 ( s_letra_da_nota       ),
-        .SEL( select_letra          ),
+        .SEL( select_mux_letra      ),
         .OUT( letra                 )
     );
 
@@ -338,7 +318,6 @@ endmodule
 // ======================================================
 // MÓDULO: registrador_8_init
 // ======================================================
-// Ao receber clear, carrega 100; em enable, atualiza com D.
 module registrador_8_init (
     input        clock,
     input        clear,
@@ -348,7 +327,7 @@ module registrador_8_init (
 );
     always @(posedge clock or posedge clear) begin
         if (clear)
-            Q <= 8'd0;  // inicializa com 100 pontos
+            Q <= 8'd0;
         else if (enable)
             Q <= D;
     end
