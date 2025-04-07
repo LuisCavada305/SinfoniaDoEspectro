@@ -160,7 +160,7 @@ module fluxo_dados (
     );
 
     // Elementos para mostrar mensagem inicial
-    contador_m #(.M(100), .N(7)) contador_timeout_mensagem(
+    contador_m #(.M(300), .N(9)) contador_timeout_mensagem(
         .clock  ( clock                 ),
         .zera_as( 1'b0                  ),
         .zera_s ( zera_timer_msg        ),

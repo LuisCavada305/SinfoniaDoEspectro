@@ -135,8 +135,8 @@ module unidade_controle (
         pronto                      = (Eatual == fim_acertou ) ? 1'b1 : 1'b0;
         enable_registrador_pontos   = (Eatual == salva_pontos) ? 1'b1 : 1'b0;
         select_mux_arduino          = (Eatual == toca_nota) ? 1'b1 : 1'b0;
-        select_mux_letra            = (Eatual == registra_jogada ||Eatual == espera_soltar || Eatual == toca_nota)? 1'b1 : 1'b0;
-        select_mux_display          = (Eatual == mostrar_msg || Eatual == espera_soltar || Eatual == toca_nota) ? 1'b1 : 1'b0;
+        select_mux_letra            = (Eatual == registra_jogada ||Eatual == espera_soltar || Eatual == toca_nota || Eatual == modo_treino)? 1'b1 : 1'b0;
+        select_mux_display          = (Eatual == mostrar_msg || Eatual == espera_soltar || Eatual == toca_nota || Eatual == modo_treino) ? 1'b1 : 1'b0;
         errou                       = (Eatual == erro) ? 1'b1 : 1'b0;
         zera_contador_display       = (Eatual == inicial)? 1'b1 : 1'b0;
         zera_contador_jogada        = (Eatual == preparacao || Eatual == proxima_rodada || Eatual == preparaE || Eatual == erro) ? 1'b1 : 1'b0;

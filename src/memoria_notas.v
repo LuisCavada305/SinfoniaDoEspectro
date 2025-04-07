@@ -8,23 +8,23 @@ module memoria_notas (clock, address, select_musica, data_out);
     always @ (posedge clock)
     begin
         case (music_address)
-            // Musica 1 - Cantina Band - Star Wars
-            7'h00: data_out = 7'b0100000;
-            7'h01: data_out = 7'b0000010;
-            7'h02: data_out = 7'b0001000;
-            7'h03: data_out = 7'b0100000;
-            7'h04: data_out = 7'b0000010;
-            7'h05: data_out = 7'b0001000;
-            7'h06: data_out = 7'b0100000;
-            7'h07: data_out = 7'b0000100;
+            // Musica 1 - 
+            7'h00: data_out = 7'b0000001;
+            7'h01: data_out = 7'b0001000;
+            7'h02: data_out = 7'b0000100;
+            7'h03: data_out = 7'b0000010;
+            7'h04: data_out = 7'b0000001;
+            7'h05: data_out = 7'b0000010;
+            7'h06: data_out = 7'b0000001;
+            7'h07: data_out = 7'b0000001;
             7'h08: data_out = 7'b0000001;
-            7'h09: data_out = 7'b0010000;
-            7'h0a: data_out = 7'b0000010;
+            7'h09: data_out = 7'b0000010;
+            7'h0a: data_out = 7'b0000100;
             7'h0b: data_out = 7'b0001000;
-            7'h0c: data_out = 7'b0100000;
-            7'h0d: data_out = 7'b0000010;
-            7'h0e: data_out = 7'b0001000;
-            7'h0f: data_out = 7'b0100000;
+            7'h0c: data_out = 7'b0000001;
+            7'h0d: data_out = 7'b0001000;
+            7'h0e: data_out = 7'b0000100;
+            7'h0f: data_out = 7'b0000010;
             
             // Musica 2 - Marcha Imperial - Darth Brunoro
             7'h10: data_out = 7'b0100000;
@@ -46,21 +46,21 @@ module memoria_notas (clock, address, select_musica, data_out);
 
             // Musica 3 - Aquarela 
             7'h20: data_out = 7'b0000100;
-            7'h21: data_out = 7'b0010000;
-            7'h22: data_out = 7'b0010000;
+            7'h21: data_out = 7'b0000100;
+            7'h22: data_out = 7'b0001000;
             7'h23: data_out = 7'b0010000;
-            7'h24: data_out = 7'b0100000;
-            7'h25: data_out = 7'b0010000;
-            7'h26: data_out = 7'b0001000;
-            7'h27: data_out = 7'b0000100;
-            7'h28: data_out = 7'b0001000;
-            7'h29: data_out = 7'b0010000;
-            7'h2a: data_out = 7'b0000100;
+            7'h24: data_out = 7'b0010000;
+            7'h25: data_out = 7'b0001000;
+            7'h26: data_out = 7'b0000100;
+            7'h27: data_out = 7'b0000010;
+            7'h28: data_out = 7'b0000001;
+            7'h29: data_out = 7'b0000001;
+            7'h2a: data_out = 7'b0000010;
             7'h2b: data_out = 7'b0000100;
-            7'h2c: data_out = 7'b0010000;
-            7'h2d: data_out = 7'b0010000;
-            7'h2e: data_out = 7'b0010000;
-            7'h2f: data_out = 7'b0100000;
+            7'h2c: data_out = 7'b0000100;
+            7'h2d: data_out = 7'b0000010;
+            7'h2e: data_out = 7'b0000010;
+            7'h2f: data_out = 7'b0000100;
 
             // Musica 4 - Asa Branca
             7'h30: data_out = 7'b0000100;
