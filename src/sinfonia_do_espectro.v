@@ -69,7 +69,7 @@ module sinfonia_do_espectro (
     wire s_zera_registrador_pontos;
     wire [1:0] s_contagem_display;
     wire [3:0] s_ones;
-    wire [3:0] s_ten;
+    wire [3:0] s_tens;
     wire [3:0] s_hundreds;
     wire [3:0] s_contagem;
     wire [3:0] s_limite;
@@ -194,6 +194,11 @@ module sinfonia_do_espectro (
     hexa7seg HEX5(
         .hexa       ({3'b000, s_estado[4]}  ),
         .display    (db_estado1             )
+    );
+
+    hexa7seg HEX6(
+        .hexa       (s_contagem  ),
+        .display    (db_contagem )
     );
 
     // O módulo edge_detector gera o sinal s_jogar a partir do sinal jogar
