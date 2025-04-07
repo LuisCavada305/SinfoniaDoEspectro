@@ -1,0 +1,40 @@
+Quartus Prime Archive log --	C:/Users/henri/Documents/Projeto-Lab-dig/quartus/sinfonia_do_espectro_refinado.qarlog
+
+Archive:	C:/Users/henri/Documents/Projeto-Lab-dig/quartus/sinfonia_do_espectro_refinado.qar
+Date:		Mon Apr 07 03:24:37 2025
+Quartus Prime		20.1.1 Build 720 11/11/2020 SJ Lite Edition
+
+	=========== Files Selected: ===========
+C:/Users/henri/Documents/Projeto-Lab-dig/src/Projeto_Lab_Dig.qpf
+C:/Users/henri/Documents/Projeto-Lab-dig/src/arduino_connector.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/bin2bcd.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/bin2sevenSeg.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/calculadora_pontos.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/circuito_S1.qsf
+C:/Users/henri/Documents/Projeto-Lab-dig/src/comparador_85.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/comparador_85_7bits.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/contador_163.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/contador_m.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/conversor7seg.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/decoder_8x3.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/display_pontos.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/edge_detector.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/estado7seg.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/fluxo_dados.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/hexa7seg.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/letra2sevenSeg.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/memoria_frase.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/memoria_notas.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/mux2x1.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/mux2x1_7.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/mux_2x1_5bits.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/mux_2x1_8bits.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/mux_4x1_4bits.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/notas2letras.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/sinfonia_do_espectro.v
+C:/Users/henri/Documents/Projeto-Lab-dig/src/unidade_controle.v
+c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf
+	======= Total: 29 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.

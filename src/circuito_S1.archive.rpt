@@ -1,0 +1,105 @@
+Archive Project report for circuito_S1
+Mon Apr 07 03:24:37 2025
+Quartus Prime Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Archive Project Summary
+  3. Archive Project Messages
+  4. Files Archived
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2020  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++----------------------------------------------------------------+
+; Archive Project Summary                                        ;
++------------------------+---------------------------------------+
+; Archive Project Status ; Successful - Mon Apr 07 03:24:37 2025 ;
+; Revision Name          ; circuito_S1                           ;
+; Top-level Entity Name  ; sinfonia_do_espectro                  ;
+; Family                 ; Cyclone V                             ;
++------------------------+---------------------------------------+
+
+
++--------------------------+
+; Archive Project Messages ;
++--------------------------+
+Info: File Set 'Source control' contains:
+    Info: Project source and settings files
+    Info: Automatically detected source files
+Warning: Hierarchical Platform Designer systems and custom IP components(_hw.tcl and associated files) are not archived by the Quartus Archiver
+Info: Archive will store files relative to the closest common parent directory
+Info (13213): Using common directory C:/Users/henri/Documents/Projeto-Lab-dig/src/
+Info: ----------------------------------------------------------
+Info: ----------------------------------------------------------
+Info: Generated archive 'C:/Users/henri/Documents/Projeto-Lab-dig/quartus/sinfonia_do_espectro_refinado.qar'
+Info: ----------------------------------------------------------
+Info: ----------------------------------------------------------
+Info: Generated report 'circuito_S1.archive.rpt'
+Info (23030): Evaluation of Tcl script c:/intelfpga_lite/20.1/quartus/common/tcl/apps/qpm/qar.tcl was successful
+Info: Quartus Prime Shell was successful. 0 errors, 1 warning
+    Info: Peak virtual memory: 4829 megabytes
+    Info: Processing ended: Mon Apr 07 03:24:37 2025
+    Info: Elapsed time: 00:00:02
+    Info: Total CPU time (on all processors): 00:00:01
+
+
++--------------------------------------------------------------+
+; Files Archived                                               ;
++--------------------------------------------------------------+
+; File Name                                                    ;
++--------------------------------------------------------------+
+; arduino_connector.v                                          ;
+; bin2bcd.v                                                    ;
+; bin2sevenSeg.v                                               ;
+; c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf ;
+; calculadora_pontos.v                                         ;
+; circuito_S1.qsf                                              ;
+; comparador_85.v                                              ;
+; comparador_85_7bits.v                                        ;
+; contador_163.v                                               ;
+; contador_m.v                                                 ;
+; conversor7seg.v                                              ;
+; decoder_8x3.v                                                ;
+; display_pontos.v                                             ;
+; edge_detector.v                                              ;
+; estado7seg.v                                                 ;
+; fluxo_dados.v                                                ;
+; hexa7seg.v                                                   ;
+; letra2sevenSeg.v                                             ;
+; memoria_frase.v                                              ;
+; memoria_notas.v                                              ;
+; mux2x1.v                                                     ;
+; mux2x1_7.v                                                   ;
+; mux_2x1_5bits.v                                              ;
+; mux_2x1_8bits.v                                              ;
+; mux_4x1_4bits.v                                              ;
+; notas2letras.v                                               ;
+; Projeto_Lab_Dig.qpf                                          ;
+; sinfonia_do_espectro.v                                       ;
+; unidade_controle.v                                           ;
++--------------------------------------------------------------+
+
+
