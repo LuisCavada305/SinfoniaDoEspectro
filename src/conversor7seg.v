@@ -1,16 +1,16 @@
-module conversor7seg(select, zera_contador_display, clock, numero, letra, contagem_display,db_ones, db_tens, db_hundreds, display);  
-    input               clock;
-    input               zera_contador_display;
-    input               select;
-    input       [7:0]   numero;
-    input       [4:0]   letra;
-    output      [1:0]   contagem_display;
-	 output      [3:0]   db_ones;
-    output      [3:0]   db_tens;
-    output      [3:0]   db_hundreds;
-    output	   [11:0]  display;
+module conversor7seg(
+    input               clock,
+    input               zera_contador_display,
+    input               select,
+    input       [7:0]   numero,
+    input       [4:0]   letra,
+    output      [1:0]   contagem_display,
+    output      [3:0]   db_ones,
+    output      [3:0]   db_tens,
+    output      [3:0]   db_hundreds,
+    output	   [11:0]   display
+);
 
-    //reg     [3:0] enable;
     wire    [3:0] hundreds;
     wire    [3:0] tens;
     wire    [3:0] ones;
@@ -21,36 +21,11 @@ module conversor7seg(select, zera_contador_display, clock, numero, letra, contag
     wire    [7:0] s_display_letra;
 
     assign contagem_display = s_contagem;
-	 assign db_ones = ones;
-	 assign db_tens = tens;
-	 assign db_hundreds = hundreds;
-    
-    //always @(s_contagem) begin
-    //    case (s_contagem)
-    //       2'b00:    display[11:8] = 4'b1110; 
-    //        2'b01:    display[11:8] = 4'b1101;
-    //       2'b10:    display[11:8] = 4'b1011;
-    //        2'b11:    display[11:8] = 4'b0111;
-    //        default:  display[11:8] = 4'b0000; 
-    //   endcase
-
-    //    case (s_contagem)
-    //        2'b00   : s_digito_bcd <= ones;
-    //        2'b01   : s_digito_bcd <= tens;
-    //        2'b10   : s_digito_bcd <= hundreds;
-    //        2'b11   : s_digito_bcd = 4'b1111;
-    //        default : s_digito_bcd = 4'b1111;
-    //    endcase
-    //end
-    
-    // Unificacao dos sinais de enable e dos 7 segmentos
-    //always @(*) begin
-    //    display[7:0]    = s_display;
-    //       = enable;
-    //end
-    //assign display[7:0] = s_display;
+    assign db_ones = ones;
+    assign db_tens = tens;
+    assign db_hundreds = hundreds;
 	
-    // Conta ate 3
+    // Conta ate 4
     contador_m  #(.M(4), .N(2)) contador_ordem(
         .clock (clock),
         .zera_as(1'b0),
